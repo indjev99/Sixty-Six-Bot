@@ -21,20 +21,18 @@ int Talon::size() const
     return cards.size();
 }
 
-std::pair<Hand, Hand> Talon::dealTwoHands()
+std::vector<Card> Talon::dealHand()
 {
-    std::vector<Card> hand1(cards.end() - HAND_SIZE, cards.end());
-    std::vector<Card> hand2(cards.end() - 2 * HAND_SIZE, cards.end() - HAND_SIZE);
-    cards.resize(cards.size() - 2 * HAND_SIZE);
-    return {{hand1}, {hand2}};
+    std::vector<Card> hand(cards.end() - HAND_SIZE, cards.end());
+    cards.resize(cards.size() - HAND_SIZE);
+    return hand;
 }
 
-std::pair<Card, Card> Talon::dealTwoCards()
+Card Talon::dealCard()
 {
-    Card card1 = *(cards.end() - 1);
-    Card card2 = *(cards.end() - 2);
-    cards.resize(cards.size() - 2);
-    return {card1, card2};
+    Card card = cards.back();
+    cards.pop_back();
+    return card;
 }
 
 Card Talon::lastCard() const

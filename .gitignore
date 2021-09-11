@@ -1,5 +1,4 @@
 *.exe
 *.o
-*.depend
-*.layout
+*.d
 .vscode/*

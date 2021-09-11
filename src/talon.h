@@ -1,7 +1,6 @@
 #pragma once
 
 #include "card.h"
-#include "hand.h"
 #include <vector>
 
 struct Talon
@@ -9,8 +8,8 @@ struct Talon
     Talon();
 
     int size() const;
-    std::pair<Hand, Hand> dealTwoHands();
-    std::pair<Card, Card> dealTwoCards();
+    std::vector<Card> dealHand();
+    Card dealCard();
 
     Card lastCard() const;
     void setLastCard(Card card);

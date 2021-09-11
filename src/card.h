@@ -14,8 +14,14 @@
 #define S_CLUBS 2
 #define S_DIAMONDS 3
 
+#include <string>
+
 struct Card
 {
     int rank;
     int suite;
+
+    std::string toString() const;
 };
+
+bool operator<(Card left, Card right);
