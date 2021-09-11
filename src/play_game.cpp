@@ -51,6 +51,7 @@ int playGame(Player* leadPlayer, Player* respPlayer)
             if (std::find(MARRIAGE_RANKS.begin(), MARRIAGE_RANKS.end(), card.rank) != MARRIAGE_RANKS.end()) ++marriageCounts[card.suite];
         }
 
+        // TODO: limit number of tries
         int moveIdx;
         do
         {
@@ -95,6 +96,8 @@ int playGame(Player* leadPlayer, Player* respPlayer)
             continue;
         }
 
+        // TODO: require correct responses when closed or talon is empty
+        // TODO: limit number of tries
         int responseIdx;
         do
         {
@@ -116,10 +119,17 @@ int playGame(Player* leadPlayer, Player* respPlayer)
         if (!leadWinsHand) std::swap(leadState, respState);
 
         leadState.score += CARD_VALUES[move.card.rank] + CARD_VALUES[response.rank];
+        leadState.hasTakenTricks = true;
+
+        if (!closed && talon.size() > 0)
+        {
+            leadState.hand.push_back(talon.dealCard());
+            respState.hand.push_back(talon.dealCard());
+        }
     }
 
-    if (!closed) leadState.score += LAST_TRICK_VALUE;
-    
+    if (!closed && leadState.hand.empty()) leadState.score += LAST_TRICK_VALUE;
+
     if (closed && !leadState.hasClosed) std::swap(leadState, respState);
 
     int points = 0;

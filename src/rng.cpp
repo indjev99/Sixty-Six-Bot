@@ -12,3 +12,9 @@ void timeSeedRNG()
 {
     seedRNG(time(nullptr));
 }
+
+int randInt(int from, int to)
+{
+    std::uniform_int_distribution<> distr(from, to - 1);
+    return distr(RNG);
+}
