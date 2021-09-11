@@ -11,11 +11,7 @@ int main()
     HumanPlayer humanPlayer;
     RandomPlayer randomPlayer;
 
-    int points = playGame(&randomPlayer, &randomPlayer);
-
-    std::cout << points << std::endl;
-
-    std::cout << playGame(&randomPlayer, &randomPlayer) << std::endl;
+    playGame(&humanPlayer, &randomPlayer);
 
     return 0;
 }

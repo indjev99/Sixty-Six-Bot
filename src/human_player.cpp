@@ -1,5 +1,6 @@
 #include "human_player.h"
-
+#include "config.h"
+#include "util.h"
 #include <iostream>
 
 void HumanPlayer::giveTrump(Card card)
@@ -9,6 +10,8 @@ void HumanPlayer::giveTrump(Card card)
 
 void HumanPlayer::giveHand(const std::vector<Card>& hand)
 {
+    this->hand = hand;
+
     std::cout << std::endl;
     std::cout << "Hand:";
     for (Card card : hand)
@@ -55,16 +58,19 @@ void HumanPlayer::giveGameResult(int points)
 
 int HumanPlayer::getMove()
 {
-    int move;
+    std::string move;
     std::cout << "Select move: ";
     std::cin >> move;
-    return move;
+    
+    if (move == "Close") return M_CLOSE;
+    if (move == "Exchange") return M_EXCHANGE;
+    return findCard(move, hand);
 }
 
 int HumanPlayer::getResponse()
 {
-    int response;
+    std::string response;
     std::cout << "Select response: ";
     std::cin >> response;
-    return response;
+    return findCard(response, hand);
 }

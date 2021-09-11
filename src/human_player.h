@@ -14,4 +14,8 @@ struct HumanPlayer : Player
 
     int getMove() override;
     int getResponse() override;
+
+private:
+
+    std::vector<Card> hand;
 };

@@ -1,5 +1,6 @@
 #include "play_game.h"
 #include "talon.h"
+#include "util.h"
 #include "config.h"
 #include <algorithm>
 
@@ -41,15 +42,8 @@ int playGame(Player* leadPlayer, Player* respPlayer)
         respState.player->giveHand(respState.hand);
 
         bool canDoTalonAct = !closed && leadState.hasTakenTricks && talon.size() >= TALON_ACT_TRESH;
-        int exchangeIdx = -1;
-        std::vector<int> marriageCounts(NUM_SUITES, 0);
-
-        for (int i = 0; i < (int) leadState.hand.size(); ++i)
-        {
-            Card card = leadState.hand[i];
-            if (card.suite == trump && card.rank == EXCHANGE_RANK) exchangeIdx = i;
-            if (std::find(MARRIAGE_RANKS.begin(), MARRIAGE_RANKS.end(), card.rank) != MARRIAGE_RANKS.end()) ++marriageCounts[card.suite];
-        }
+        int exchangeIdx = findExchangeCard(trump, leadState.hand);
+        std::vector<bool> marriageSuites = findMarriageSuits(leadState.hand);
 
         // TODO: limit number of tries
         int moveIdx;
@@ -59,14 +53,14 @@ int playGame(Player* leadPlayer, Player* respPlayer)
         }
         while (moveIdx >= (int) leadState.hand.size() || moveIdx < M_EXCHANGE ||
                (moveIdx == M_CLOSE && !canDoTalonAct) ||
-               (moveIdx == M_EXCHANGE && (!canDoTalonAct || exchangeIdx == -1)));
+               (moveIdx == M_EXCHANGE && (!canDoTalonAct || exchangeIdx < (int) leadState.hand.size())));
 
         Move move;
         if (moveIdx >= 0)
         {
             move.type = M_PLAY;
             move.card = leadState.hand[moveIdx];
-            if (marriageCounts[move.card.suite] == (int) MARRIAGE_RANKS.size())
+            if (marriageSuites[move.card.suite] && std::find(MARRIAGE_RANKS.begin(), MARRIAGE_RANKS.end(), move.card.rank) != MARRIAGE_RANKS.end())
             {
                 move.score = move.card.suite == trump ? TRUMP_MARRIAGE_VALUE : REG_MARRIAGE_VALUE;
             }
@@ -112,11 +106,7 @@ int playGame(Player* leadPlayer, Player* respPlayer)
 
         respState.hand.erase(respState.hand.begin() + responseIdx);
 
-        bool leadWinsHand = true;
-        if (move.card.suite == response.suite && move.card.rank < response.rank) leadWinsHand = false;
-        if (move.card.suite != trump && response.suite == trump) leadWinsHand = false;
-
-        if (!leadWinsHand) std::swap(leadState, respState);
+        if (!leadWinsTrick(trump, move.card, response)) std::swap(leadState, respState);
 
         leadState.score += CARD_VALUES[move.card.rank] + CARD_VALUES[response.rank];
         leadState.hasTakenTricks = true;
@@ -142,7 +132,7 @@ int playGame(Player* leadPlayer, Player* respPlayer)
     else if (leadState.hasClosed) points = -CLOSEFAIL_POINTS;
 
     leadState.player->giveGameResult(points);
-    leadState.player->giveGameResult(-points);
+    respState.player->giveGameResult(-points);
 
     if (leadState.id == 2)
     {
