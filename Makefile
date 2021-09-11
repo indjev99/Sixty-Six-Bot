@@ -8,7 +8,7 @@ CXXFLAGS = -std=c++17 -Wall -O2
 LDFLAGS = 
 
 # Makefile settings - Can be customized.
-APPNAME = 7-Wonders-AI
+APPNAME = Sixty-Six-Bot
 EXT = .cpp
 SRCDIR = src
 OBJDIR = obj
