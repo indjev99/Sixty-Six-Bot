@@ -1,7 +1,7 @@
 #include "play_set.h"
 #include "play_game.h"
-#include "random_player.h"
-#include "human_player.h"
+#include "player_random.h"
+#include "player_human.h"
 #include "rng.h"
 #include <iostream>
 
@@ -9,10 +9,10 @@ int main()
 {
     timeSeedRNG();
 
-    HumanPlayer humanPlayer;
-    RandomPlayer randomPlayer;
+    PlayerRandom playerRandom;
+    PlayerHuman playerHuman;
 
-    int result = playSet(&humanPlayer, &randomPlayer);
+    int result = playSet(&playerHuman, &playerRandom);
 
     std::cout << std::endl << "Set result is: " << result << "." << std::endl;
 

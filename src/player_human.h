@@ -2,7 +2,7 @@
 
 #include "player.h"
 
-struct HumanPlayer : Player
+struct PlayerHuman : Player
 {
     void giveState(bool closed, int talonSize, Card trumpCard, int selfScore, int oppScore) override;
     void giveHand(const std::vector<Card>& hand) override;

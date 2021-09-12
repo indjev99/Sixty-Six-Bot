@@ -1,9 +1,9 @@
-#include "human_player.h"
+#include "player_human.h"
 #include "config.h"
 #include "util.h"
 #include <iostream>
 
-void HumanPlayer::giveState(bool closed, int talonSize, Card trumpCard, int selfScore, int oppScore)
+void PlayerHuman::giveState(bool closed, int talonSize, Card trumpCard, int selfScore, int oppScore)
 {
     std::cout << std::endl;
     std::cout << "Your score is " << selfScore << ".";
@@ -18,7 +18,7 @@ void HumanPlayer::giveState(bool closed, int talonSize, Card trumpCard, int self
     std::cout << std::endl;
 }
 
-void HumanPlayer::giveHand(const std::vector<Card>& hand)
+void PlayerHuman::giveHand(const std::vector<Card>& hand)
 {
     this->hand = hand;
 
@@ -31,7 +31,7 @@ void HumanPlayer::giveHand(const std::vector<Card>& hand)
     std::cout << "." << std::endl;
 }
 
-void HumanPlayer::giveMove(Move move)
+void PlayerHuman::giveMove(Move move)
 {
     if (move.type == M_PLAY)
     {
@@ -49,7 +49,7 @@ void HumanPlayer::giveMove(Move move)
     }
 }
 
-void HumanPlayer::giveResponse(Card card)
+void PlayerHuman::giveResponse(Card card)
 {
     std::cout << "Opponent responded with " << card.toString() << "." << std::endl;
 }
@@ -59,7 +59,7 @@ static std::string pointsWord(int points)
     return points == 1 ? "point" : "points";
 }
 
-void HumanPlayer::giveGameResult(int newPoints, int selfPoints, int oppPoints)
+void PlayerHuman::giveGameResult(int newPoints, int selfPoints, int oppPoints)
 {
     std::cout << std::endl;
     if (newPoints == 0) std::cout << "Draw.";
@@ -73,7 +73,7 @@ void HumanPlayer::giveGameResult(int newPoints, int selfPoints, int oppPoints)
     std::cout << std::endl;
 }
 
-int HumanPlayer::getMove()
+int PlayerHuman::getMove()
 {
     std::string move;
     std::cout << "Select move: ";
@@ -84,7 +84,7 @@ int HumanPlayer::getMove()
     return findCard(move, hand);
 }
 
-int HumanPlayer::getResponse(const std::vector<int>& valid)
+int PlayerHuman::getResponse(const std::vector<int>& valid)
 {
     std::string response;
     std::cout << "Select response: ";
