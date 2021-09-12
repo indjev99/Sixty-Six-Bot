@@ -46,7 +46,7 @@ int playGame(Player* leadPlayer, Player* respPlayer)
         std::sort(respState.hand.begin(), respState.hand.end());
         respState.player->giveHand(respState.hand);
 
-        bool canDoTalonAct = !closed && trickNumber > 0;
+        bool canDoTalonAct = !closed && trickNumber > 0 && talon.size() >= TALON_ACT_TRESH;
         int exchangeIdx = findExchangeCard(trumpSuite, leadState.hand);
         std::vector<bool> marriageSuites = findMarriageSuits(leadState.hand);
 
