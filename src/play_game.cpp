@@ -35,6 +35,9 @@ int playGame(Player* leadPlayer, Player* respPlayer)
     respState.player = respPlayer;
     respState.hand = talon.dealHand();
 
+    leadState.player->startGame();
+    respState.player->startGame();
+
     while ((leadState.score < WIN_TRESH || !leadState.hasTakenTricks) && !leadState.hand.empty())
     {
         leadState.player->giveState(closed, talon.size(), talon.lastCard(), leadState.score, respState.score);

@@ -4,6 +4,13 @@
 #include "rng.h"
 #include <algorithm>
 
+void PlayerSimple::startSet() {}
+
+void PlayerSimple::startGame()
+{
+    trickNumber = 0;
+}
+
 void PlayerSimple::giveState(bool closed, int talonSize, Card trumpCard, int selfScore, int oppScore)
 {
     this->closed = closed;
@@ -26,10 +33,8 @@ void PlayerSimple::giveResponse(Card card)
     ++trickNumber;
 }
 
-void PlayerSimple::giveGameResult(int newPoints, int selfPoints, int oppPoints)
-{
-    trickNumber = 0;
-}
+void PlayerSimple::giveGameResult(int newPoints, int selfPoints, int oppPoints) {}
+void PlayerSimple::giveSetResult(int result) {}
 
 bool isBetter(int trumpSuite, Card card, Card other)
 {

@@ -20,6 +20,9 @@ int playSet(Player* leadPlayer, Player* respPlayer)
     respState.mult = -1;
     respState.player = respPlayer;
 
+    leadState.player->startSet();
+    respState.player->startSet();
+
     while (respState.points < POINT_TRESH)
     {
         int newPoints = playGame(leadState.player, respState.player);
@@ -32,6 +35,9 @@ int playSet(Player* leadPlayer, Player* respPlayer)
         leadState.player->giveGameResult(-newPoints, leadState.points, respState.points);
         respState.player->giveGameResult(newPoints, respState.points, leadState.points);
     }
+
+    leadState.player->giveSetResult(-1);
+    respState.player->giveSetResult(1);
 
     return respState.mult;
 }

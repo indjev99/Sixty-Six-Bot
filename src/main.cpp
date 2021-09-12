@@ -2,7 +2,7 @@
 #include "play_game.h"
 #include "player_random.h"
 #include "player_simple.h"
-#include "player_human.h"
+#include "player_ui.h"
 #include "rng.h"
 #include <iostream>
 
@@ -23,12 +23,14 @@ int main()
 
     PlayerRandom playerRandom;
     PlayerSimple playerSimple;
-    PlayerHuman playerHuman;
+    PlayerUI playerHuman;
 
-    std::cout << "Average result: " << benchmark(playSet, &playerSimple, &playerRandom, true, 10000) << "." << std::endl;
+    PlayerSimple playerSimpleUnderlying;
+    PlayerUI playerSimpleObserved(&playerSimpleUnderlying);
 
-    // int result = playSet(&playerHuman, &playerRandom);
-    // std::cout << std::endl << "Set result is: " << result << "." << std::endl;
+    // std::cout << "Average result: " << benchmark(playSet, &playerSimple, &playerRandom, true, 10000) << "." << std::endl;
+
+    playSet(&playerSimpleObserved, &playerSimple);
 
     return 0;
 }
