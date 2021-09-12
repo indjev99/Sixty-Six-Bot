@@ -1,10 +1,11 @@
 #include "util.h"
 #include "config.h"
 #include <algorithm>
+#include <numeric>
 
-bool leadWinsTrick(int trump, Card leadCard, Card respCard)
+bool leadWinsTrick(int trumpSuite, Card leadCard, Card respCard)
 {
-    if (leadCard.suite != trump && respCard.suite == trump) return false;
+    if (leadCard.suite != trumpSuite && respCard.suite == trumpSuite) return false;
     if (leadCard.suite == respCard.suite && leadCard.rank < respCard.rank) return false;
     return true;
 }
@@ -18,11 +19,11 @@ int findCard(std::string name, const std::vector<Card>& hand)
     return hand.size();
 }
 
-int findExchangeCard(int trump, const std::vector<Card>& hand)
+int findExchangeCard(int trumpSuite, const std::vector<Card>& hand)
 {
     for (int i = 0; i < (int) hand.size(); ++i)
     {
-        if (hand[i].suite == trump && hand[i].rank == EXCHANGE_RANK) return i;
+        if (hand[i].suite == trumpSuite && hand[i].rank == EXCHANGE_RANK) return i;
     }
     return hand.size();
 }
@@ -42,4 +43,26 @@ std::vector<bool> findMarriageSuits(const std::vector<Card>& hand)
     }
 
     return marriageSuites;
+}
+
+std::vector<int> findValidResponses(int trumpSuite, Card leadCard, const std::vector<Card>& hand)
+{
+    std::vector<int> suitedRaises;
+    std::vector<int> suited;
+    std::vector<int> trumps;
+
+    for (int i = 0; i < (int) hand.size(); ++i)
+    {
+        if (hand[i].suite == trumpSuite) trumps.push_back(i);
+        if (hand[i].suite == leadCard.suite) suited.push_back(i);
+        if (hand[i].suite == leadCard.suite && hand[i].rank > leadCard.rank) suitedRaises.push_back(i);
+    }
+
+    if (!suitedRaises.empty()) return suitedRaises;
+    else if (!suited.empty()) return suited;
+    else if (!trumps.empty()) return trumps;
+
+    std::vector<int> valid(hand.size());
+    std::iota(valid.begin(), valid.end(), 0);
+    return valid;
 }

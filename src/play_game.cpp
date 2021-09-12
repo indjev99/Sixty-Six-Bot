@@ -3,9 +3,9 @@
 #include "util.h"
 #include "config.h"
 #include <algorithm>
-#include <iostream>
+#include <numeric>
 
-const int MAX_ATTEMPTS = 16;
+const int MAX_ATTEMPTS = 32;
 
 struct PlayerGameState
 {
@@ -22,7 +22,7 @@ int playGame(Player* leadPlayer, Player* respPlayer)
 {
     Talon talon;
     bool closed = false;
-    int trump = talon.lastCard().suite;
+    int trumpSuite = talon.lastCard().suite;
 
     PlayerGameState leadState, respState;
 
@@ -49,7 +49,7 @@ int playGame(Player* leadPlayer, Player* respPlayer)
         respState.player->giveHand(respState.hand);
 
         bool canDoTalonAct = !closed && leadState.hasTakenTricks && talon.size() >= TALON_ACT_TRESH;
-        int exchangeIdx = findExchangeCard(trump, leadState.hand);
+        int exchangeIdx = findExchangeCard(trumpSuite, leadState.hand);
         std::vector<bool> marriageSuites = findMarriageSuits(leadState.hand);
 
         int moveIdx;
@@ -70,7 +70,7 @@ int playGame(Player* leadPlayer, Player* respPlayer)
             move.card = leadState.hand[moveIdx];
             if (leadState.hasTakenTricks && marriageSuites[move.card.suite] && std::find(MARRIAGE_RANKS.begin(), MARRIAGE_RANKS.end(), move.card.rank) != MARRIAGE_RANKS.end())
             {
-                move.score = move.card.suite == trump ? TRUMP_MARRIAGE_VALUE : REG_MARRIAGE_VALUE;
+                move.score = move.card.suite == trumpSuite ? TRUMP_MARRIAGE_VALUE : REG_MARRIAGE_VALUE;
             }
         }
         else move.type = moveIdx;
@@ -96,21 +96,29 @@ int playGame(Player* leadPlayer, Player* respPlayer)
             continue;
         }
 
-        // TODO: require correct responses when closed or talon is empty
+        std::vector<int> validResps;
+
+        if (closed || talon.size() == 0) validResps = findValidResponses(trumpSuite, move.card, respState.hand);
+        else
+        {
+            validResps.resize(respState.hand.size());
+            std::iota(validResps.begin(), validResps.end(), 0);
+        }
+
         attempts = MAX_ATTEMPTS;
         int responseIdx;
         do
         {
             if (!--attempts) return -NOMOVE_POINTS * respState.mult;
-            responseIdx = respState.player->getResponse();
+            responseIdx = respState.player->getResponse(validResps);
         }
-        while (responseIdx >= (int) respState.hand.size() || responseIdx < 0);
+        while (std::find(validResps.begin(), validResps.end(), responseIdx) == validResps.end());
 
         Card response = respState.hand[responseIdx];
         leadState.player->giveResponse(response);
         respState.hand.erase(respState.hand.begin() + responseIdx);
 
-        if (!leadWinsTrick(trump, move.card, response)) std::swap(leadState, respState);
+        if (!leadWinsTrick(trumpSuite, move.card, response)) std::swap(leadState, respState);
 
         leadState.score += CARD_VALUES[move.card.rank] + CARD_VALUES[response.rank];
         leadState.hasTakenTricks = true;
@@ -122,10 +130,10 @@ int playGame(Player* leadPlayer, Player* respPlayer)
         }
     }
 
+    if (!closed && leadState.hand.empty()) leadState.score += LAST_TRICK_VALUE;
+
     leadState.player->giveState(closed, talon.size(), talon.lastCard(), leadState.score, respState.score);
     respState.player->giveState(closed, talon.size(), talon.lastCard(), respState.score, leadState.score);
-
-    if (!closed && leadState.hand.empty()) leadState.score += LAST_TRICK_VALUE;
 
     if (closed && !leadState.hasClosed) std::swap(leadState, respState);
 

@@ -11,7 +11,8 @@ int main()
     HumanPlayer humanPlayer;
     RandomPlayer randomPlayer;
 
-    playGame(&humanPlayer, &randomPlayer);
+    int result = playGame(&humanPlayer, &randomPlayer);
+    std::cout << result << std::endl;
 
     return 0;
 }

@@ -82,7 +82,7 @@ int HumanPlayer::getMove()
     return findCard(move, hand);
 }
 
-int HumanPlayer::getResponse()
+int HumanPlayer::getResponse(const std::vector<int>& valid)
 {
     std::string response;
     std::cout << "Select response: ";

@@ -16,5 +16,5 @@ struct Player
     virtual void giveGameResult(int points) = 0;
 
     virtual int getMove() = 0;
-    virtual int getResponse() = 0;
+    virtual int getResponse(const std::vector<int>& valid) = 0;
 };

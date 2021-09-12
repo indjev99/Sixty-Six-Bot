@@ -11,12 +11,10 @@ void RandomPlayer::giveGameResult(int points) {}
 
 int RandomPlayer::getMove()
 {
-    int move = randInt(M_EXCHANGE, HAND_SIZE * 2);
-    if (move >= 0) return move % HAND_SIZE;
-    else return move;
+    return randInt(M_EXCHANGE, HAND_SIZE);
 }
 
-int RandomPlayer::getResponse()
+int RandomPlayer::getResponse(const std::vector<int>& valid)
 {
-    return randInt(0, HAND_SIZE);
+    return valid[randInt(0, valid.size())];
 }

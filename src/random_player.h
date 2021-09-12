@@ -14,5 +14,5 @@ struct RandomPlayer : Player
     void giveGameResult(int points) override;
 
     int getMove() override;
-    int getResponse() override;
+    int getResponse(const std::vector<int>& valid) override;
 };
