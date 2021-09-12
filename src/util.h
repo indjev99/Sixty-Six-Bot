@@ -3,9 +3,9 @@
 #include "card.h"
 #include <vector>
 
-bool leadWinsTrick(int trumpSuite, Card leadCard, Card respCard);
+bool leadWinsTrick(int trumpSuit, Card leadCard, Card respCard);
 int findCard(std::string name, const std::vector<Card>& hand);
-int findExchangeCard(int trumpSuite, const std::vector<Card>& hand);
+int findExchangeCard(int trumpSuit, const std::vector<Card>& hand);
 bool isMarriageCard(Card card);
 std::vector<bool> findMarriageSuits(const std::vector<Card>& hand);
-std::vector<int> findValidResponses(int trumpSuite, Card leadCard, const std::vector<Card>& hand);
+std::vector<int> findValidResponses(int trumpSuit, Card leadCard, const std::vector<Card>& hand);

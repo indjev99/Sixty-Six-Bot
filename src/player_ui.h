@@ -25,7 +25,7 @@ private:
 
     Player* player;
 
-    int trumpSuite;
+    int trumpSuit;
     int trickNumber;
     std::vector<Card> hand;
 };

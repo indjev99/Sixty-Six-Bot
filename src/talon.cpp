@@ -7,9 +7,9 @@ Talon::Talon()
 {
     for (int rank = 0; rank < NUM_RANKS; ++rank)
     {
-        for (int suite = 0; suite < NUM_SUITES; ++suite)
+        for (int suit = 0; suit < NUM_SUITES; ++suit)
         {
-            cards.push_back({rank, suite});
+            cards.push_back({rank, suit});
         }
     }
 

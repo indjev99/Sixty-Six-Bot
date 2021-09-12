@@ -3,10 +3,10 @@
 #include <algorithm>
 #include <numeric>
 
-bool leadWinsTrick(int trumpSuite, Card leadCard, Card respCard)
+bool leadWinsTrick(int trumpSuit, Card leadCard, Card respCard)
 {
-    if (leadCard.suite != trumpSuite && respCard.suite == trumpSuite) return false;
-    if (leadCard.suite == respCard.suite && leadCard.rank < respCard.rank) return false;
+    if (leadCard.suit != trumpSuit && respCard.suit == trumpSuit) return false;
+    if (leadCard.suit == respCard.suit && leadCard.rank < respCard.rank) return false;
     return true;
 }
 
@@ -19,11 +19,11 @@ int findCard(std::string name, const std::vector<Card>& hand)
     return hand.size();
 }
 
-int findExchangeCard(int trumpSuite, const std::vector<Card>& hand)
+int findExchangeCard(int trumpSuit, const std::vector<Card>& hand)
 {
     for (int i = 0; i < (int) hand.size(); ++i)
     {
-        if (hand[i].suite == trumpSuite && hand[i].rank == EXCHANGE_RANK) return i;
+        if (hand[i].suit == trumpSuit && hand[i].rank == EXCHANGE_RANK) return i;
     }
     return hand.size();
 }
@@ -38,33 +38,33 @@ std::vector<bool> findMarriageSuits(const std::vector<Card>& hand)
     std::vector<int> marriageCounts(NUM_SUITES, 0);
     for (int i = 0; i < (int) hand.size(); ++i)
     {
-        if (isMarriageCard(hand[i])) ++marriageCounts[hand[i].suite];
+        if (isMarriageCard(hand[i])) ++marriageCounts[hand[i].suit];
     }
 
-    std::vector<bool> marriageSuites(NUM_SUITES);
+    std::vector<bool> marriageSuits(NUM_SUITES);
     for (int i = 0; i < NUM_SUITES; ++i)
     {
-        marriageSuites[i] = marriageCounts[i] == (int) MARRIAGE_RANKS.size();
+        marriageSuits[i] = marriageCounts[i] == (int) MARRIAGE_RANKS.size();
     }
 
-    return marriageSuites;
+    return marriageSuits;
 }
 
-std::vector<int> findValidResponses(int trumpSuite, Card leadCard, const std::vector<Card>& hand)
+std::vector<int> findValidResponses(int trumpSuit, Card leadCard, const std::vector<Card>& hand)
 {
-    std::vector<int> suitedRaises;
-    std::vector<int> suited;
+    std::vector<int> suitdRaises;
+    std::vector<int> suitd;
     std::vector<int> trumps;
 
     for (int i = 0; i < (int) hand.size(); ++i)
     {
-        if (hand[i].suite == trumpSuite) trumps.push_back(i);
-        if (hand[i].suite == leadCard.suite) suited.push_back(i);
-        if (hand[i].suite == leadCard.suite && hand[i].rank > leadCard.rank) suitedRaises.push_back(i);
+        if (hand[i].suit == trumpSuit) trumps.push_back(i);
+        if (hand[i].suit == leadCard.suit) suitd.push_back(i);
+        if (hand[i].suit == leadCard.suit && hand[i].rank > leadCard.rank) suitdRaises.push_back(i);
     }
 
-    if (!suitedRaises.empty()) return suitedRaises;
-    else if (!suited.empty()) return suited;
+    if (!suitdRaises.empty()) return suitdRaises;
+    else if (!suitd.empty()) return suitd;
     else if (!trumps.empty()) return trumps;
 
     std::vector<int> valid(hand.size());

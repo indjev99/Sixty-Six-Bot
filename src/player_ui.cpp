@@ -29,7 +29,7 @@ void PlayerUI::startGame()
 void PlayerUI::giveState(bool closed, int talonSize, Card trumpCard, int selfScore, int oppScore)
 {
     if (player) player->giveState(closed, talonSize, trumpCard, selfScore, oppScore);
-    if (trickNumber == 0) trumpSuite = trumpCard.suite;
+    if (trickNumber == 0) trumpSuit = trumpCard.suit;
 
     std::cout << std::endl;
     std::cout << "Your score is " << selfScore << ".";
@@ -124,10 +124,10 @@ int PlayerUI::getMove()
         if (move >= 0)
         {
             int moveScore = 0;
-            std::vector<bool> marriageSuites = findMarriageSuits(hand);
-            if (trickNumber > 0 && marriageSuites[hand[move].suite] && isMarriageCard(hand[move]))
+            std::vector<bool> marriageSuits = findMarriageSuits(hand);
+            if (trickNumber > 0 && marriageSuits[hand[move].suit] && isMarriageCard(hand[move]))
             {
-                moveScore = hand[move].suite == trumpSuite ? TRUMP_MARRIAGE_VALUE : REG_MARRIAGE_VALUE;
+                moveScore = hand[move].suit == trumpSuit ? TRUMP_MARRIAGE_VALUE : REG_MARRIAGE_VALUE;
             }
 
             std::cout << "You played " << hand[move].toString();

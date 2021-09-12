@@ -22,7 +22,7 @@ private:
 
     bool closed;
     int talonSize;
-    int trumpSuite;
+    int trumpSuit;
     int trickNumber;
     Card leadCard;
     std::vector<Card> hand;

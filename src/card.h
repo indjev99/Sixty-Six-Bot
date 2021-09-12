@@ -19,7 +19,7 @@
 struct Card
 {
     int rank;
-    int suite;
+    int suit;
 
     std::string toString() const;
 };
