@@ -15,4 +15,8 @@ struct RandomPlayer : Player
 
     int getMove() override;
     int getResponse(const std::vector<int>& valid) override;
+
+private:
+
+    int handSize;
 };

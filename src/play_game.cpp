@@ -5,7 +5,7 @@
 #include <algorithm>
 #include <numeric>
 
-const int MAX_ATTEMPTS = 32;
+const int MAX_ATTEMPTS = 20;
 
 struct PlayerGameState
 {
