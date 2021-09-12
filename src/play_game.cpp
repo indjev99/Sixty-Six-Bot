@@ -34,9 +34,6 @@ int playGame(Player* leadPlayer, Player* respPlayer)
     respState.player = respPlayer;
     respState.hand = talon.dealHand();
 
-    leadState.player->reset();
-    respState.player->reset();
-
     while ((leadState.score < WIN_TRESH || !leadState.hasTakenTricks) && !leadState.hand.empty())
     {
         leadState.player->giveState(closed, talon.size(), talon.lastCard(), leadState.score, respState.score);
@@ -145,9 +142,6 @@ int playGame(Player* leadPlayer, Player* respPlayer)
         if (!respState.hasTakenTricks) points = VALATWIN_POINTS;
     }
     else if (leadState.hasClosed) points = -CLOSEFAIL_POINTS;
-
-    leadState.player->giveGameResult(points);
-    respState.player->giveGameResult(-points);
 
     return points * leadState.mult;
 }

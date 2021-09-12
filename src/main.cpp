@@ -1,3 +1,4 @@
+#include "play_set.h"
 #include "play_game.h"
 #include "random_player.h"
 #include "human_player.h"
@@ -11,8 +12,9 @@ int main()
     HumanPlayer humanPlayer;
     RandomPlayer randomPlayer;
 
-    int result = playGame(&humanPlayer, &randomPlayer);
-    std::cout << result << std::endl;
+    int result = playSet(&humanPlayer, &randomPlayer);
+
+    std::cout << std::endl << "Set result is: " << result << "." << std::endl;
 
     return 0;
 }

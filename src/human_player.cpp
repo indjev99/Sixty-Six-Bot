@@ -3,16 +3,10 @@
 #include "util.h"
 #include <iostream>
 
-void HumanPlayer::reset()
+void HumanPlayer::giveState(bool closed, int talonSize, Card trumpCard, int selfScore, int oppScore)
 {
     std::cout << std::endl;
-    std::cout << "Starting new game." << std::endl;
-}
-
-void HumanPlayer::giveState(bool closed, int talonSize, Card trumpCard, int score, int oppScore)
-{
-    std::cout << std::endl;
-    std::cout << "Your score is " << score << ".";
+    std::cout << "Your score is " << selfScore << ".";
     std::cout << " | Opponent's score is " << oppScore << ".";
     if (closed) std::cout << " | Talon is closed.";
     else if (talonSize == 0) std::cout << " | Talon is depleted.";
@@ -60,15 +54,23 @@ void HumanPlayer::giveResponse(Card card)
     std::cout << "Opponent responded with " << card.toString() << "." << std::endl;
 }
 
-void HumanPlayer::giveGameResult(int points)
+static std::string pointsWord(int points)
+{
+    return points == 1 ? "point" : "points";
+}
+
+void HumanPlayer::giveGameResult(int newPoints, int selfPoints, int oppPoints)
 {
     std::cout << std::endl;
-    if (points == 0) std::cout << "Draw." << std::endl;
+    if (newPoints == 0) std::cout << "Draw.";
     else
     {
-        std::string doer = points > 0 ? "You" : "Opponent";
-        std::cout << doer << " won " << std::abs(points) << " points." << std::endl;
+        std::string doer = newPoints > 0 ? "You" : "Opponent";
+        std::cout << doer << " won " << std::abs(newPoints) << " " << pointsWord(std::abs(newPoints)) << ".";
     }
+    std::cout << " | You have " << selfPoints << " " << pointsWord(selfPoints) << ".";
+    std::cout << " | Your opponent has " << oppPoints << " " << pointsWord(oppPoints) << ".";
+    std::cout << std::endl;
 }
 
 int HumanPlayer::getMove()

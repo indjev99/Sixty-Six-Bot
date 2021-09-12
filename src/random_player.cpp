@@ -1,11 +1,10 @@
 #include "random_player.h"
 #include "rng.h"
 
-void RandomPlayer::reset() {}
-void RandomPlayer::giveState(bool closed, int talonSize, Card trumpCard, int score, int oppScore) {}
+void RandomPlayer::giveState(bool closed, int talonSize, Card trumpCard, int selfScore, int oppScore) {}
 void RandomPlayer::giveMove(Move move) {}
 void RandomPlayer::giveResponse(Card card) {}
-void RandomPlayer::giveGameResult(int points) {}
+void RandomPlayer::giveGameResult(int newPoints, int selfPoints, int oppPoints) {}
 
 void RandomPlayer::giveHand(const std::vector<Card>& hand)
 {
