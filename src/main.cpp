@@ -30,7 +30,9 @@ int main()
 
     // std::cout << "Average result: " << benchmark(playSet, &playerSimple, &playerRandom, true, 10000) << "." << std::endl;
 
-    playSet(&playerSimpleObserved, &playerSimple);
+    // playSet(&playerSimpleObserved, &playerSimple);
+
+    playSet(&playerHuman, &playerSimple);
 
     return 0;
 }
