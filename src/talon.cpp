@@ -37,6 +37,7 @@ Card Talon::dealCard()
 
 Card Talon::lastCard() const
 {
+    if (cards.empty()) return {-1, -1};
     return cards.front();
 }
 

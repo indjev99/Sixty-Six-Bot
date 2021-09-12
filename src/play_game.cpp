@@ -3,10 +3,13 @@
 #include "util.h"
 #include "config.h"
 #include <algorithm>
+#include <iostream>
+
+const int MAX_ATTEMPTS = 16;
 
 struct PlayerGameState
 {
-    int id;
+    int mult;
     Player* player;
 
     std::vector<Card> hand;
@@ -23,18 +26,22 @@ int playGame(Player* leadPlayer, Player* respPlayer)
 
     PlayerGameState leadState, respState;
 
-    leadState.id = 1;
+    leadState.mult = 1;
     leadState.player = leadPlayer;
     leadState.hand = talon.dealHand();
-    leadState.player->giveTrump(talon.lastCard());
 
-    respState.id = 2;
+    respState.mult = -1;
     respState.player = respPlayer;
     respState.hand = talon.dealHand();
-    respState.player->giveTrump(talon.lastCard());
+
+    leadState.player->reset();
+    respState.player->reset();
 
     while ((leadState.score < WIN_TRESH || !leadState.hasTakenTricks) && !leadState.hand.empty())
     {
+        leadState.player->giveState(closed, talon.size(), talon.lastCard(), leadState.score, respState.score);
+        respState.player->giveState(closed, talon.size(), talon.lastCard(), respState.score, leadState.score);
+
         std::sort(leadState.hand.begin(), leadState.hand.end());
         leadState.player->giveHand(leadState.hand);
 
@@ -45,10 +52,11 @@ int playGame(Player* leadPlayer, Player* respPlayer)
         int exchangeIdx = findExchangeCard(trump, leadState.hand);
         std::vector<bool> marriageSuites = findMarriageSuits(leadState.hand);
 
-        // TODO: limit number of tries
         int moveIdx;
+        int attempts = MAX_ATTEMPTS;
         do
         {
+            if (!--attempts) return -NOMOVE_POINTS * leadState.mult;
             moveIdx = leadState.player->getMove();
         }
         while (moveIdx >= (int) leadState.hand.size() || moveIdx < M_EXCHANGE ||
@@ -66,9 +74,7 @@ int playGame(Player* leadPlayer, Player* respPlayer)
             }
         }
         else move.type = moveIdx;
-
-        leadState.player->giveMove(move, true);
-        respState.player->giveMove(move, false);
+        respState.player->giveMove(move);
 
         if (move.type == M_PLAY)
         {
@@ -91,19 +97,17 @@ int playGame(Player* leadPlayer, Player* respPlayer)
         }
 
         // TODO: require correct responses when closed or talon is empty
-        // TODO: limit number of tries
+        attempts = MAX_ATTEMPTS;
         int responseIdx;
         do
         {
+            if (!--attempts) return -NOMOVE_POINTS * respState.mult;
             responseIdx = respState.player->getResponse();
         }
         while (responseIdx >= (int) respState.hand.size() || responseIdx < 0);
 
-        Card response = respState.hand[moveIdx];
-
-        leadState.player->giveResponse(response, false);
-        respState.player->giveResponse(response, true);
-
+        Card response = respState.hand[responseIdx];
+        leadState.player->giveResponse(response);
         respState.hand.erase(respState.hand.begin() + responseIdx);
 
         if (!leadWinsTrick(trump, move.card, response)) std::swap(leadState, respState);
@@ -117,6 +121,9 @@ int playGame(Player* leadPlayer, Player* respPlayer)
             respState.hand.push_back(talon.dealCard());
         }
     }
+
+    leadState.player->giveState(closed, talon.size(), talon.lastCard(), leadState.score, respState.score);
+    respState.player->giveState(closed, talon.size(), talon.lastCard(), respState.score, leadState.score);
 
     if (!closed && leadState.hand.empty()) leadState.score += LAST_TRICK_VALUE;
 
@@ -134,11 +141,5 @@ int playGame(Player* leadPlayer, Player* respPlayer)
     leadState.player->giveGameResult(points);
     respState.player->giveGameResult(-points);
 
-    if (leadState.id == 2)
-    {
-        points = -points;
-        std::swap(leadState, respState);
-    }
-
-    return points;
+    return points * leadState.mult;
 }
