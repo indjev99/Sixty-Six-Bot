@@ -28,12 +28,17 @@ int findExchangeCard(int trumpSuite, const std::vector<Card>& hand)
     return hand.size();
 }
 
+bool isMarriageCard(Card card)
+{
+    return std::find(MARRIAGE_RANKS.begin(), MARRIAGE_RANKS.end(), card.rank) != MARRIAGE_RANKS.end();
+}
+
 std::vector<bool> findMarriageSuits(const std::vector<Card>& hand)
 {
     std::vector<int> marriageCounts(NUM_SUITES, 0);
     for (int i = 0; i < (int) hand.size(); ++i)
     {
-        if (std::find(MARRIAGE_RANKS.begin(), MARRIAGE_RANKS.end(), hand[i].rank) != MARRIAGE_RANKS.end()) ++marriageCounts[hand[i].suite];
+        if (isMarriageCard(hand[i])) ++marriageCounts[hand[i].suite];
     }
 
     std::vector<bool> marriageSuites(NUM_SUITES);

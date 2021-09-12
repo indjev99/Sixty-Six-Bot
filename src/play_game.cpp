@@ -66,7 +66,7 @@ int playGame(Player* leadPlayer, Player* respPlayer)
         {
             move.type = M_PLAY;
             move.card = leadState.hand[moveIdx];
-            if (trickNumber > 0 && marriageSuites[move.card.suite] && std::find(MARRIAGE_RANKS.begin(), MARRIAGE_RANKS.end(), move.card.rank) != MARRIAGE_RANKS.end())
+            if (trickNumber > 0 && marriageSuites[move.card.suite] && isMarriageCard(move.card))
             {
                 move.score = move.card.suite == trumpSuite ? TRUMP_MARRIAGE_VALUE : REG_MARRIAGE_VALUE;
             }
