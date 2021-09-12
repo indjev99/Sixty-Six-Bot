@@ -3,20 +3,34 @@
 #include <algorithm>
 #include <numeric>
 
+static std::string toLower(std::string str)
+{
+    for (char& c : str)
+    {
+        c = std::tolower(c);
+    }
+    return str;
+}
+
+bool stringMatch(const std::string& left, const std::string& right)
+{
+    return toLower(left) == toLower(right);
+}
+
+int findCard(const std::string& name, const std::vector<Card>& hand)
+{
+    for (int i = 0; i < (int) hand.size(); ++i)
+    {
+        if (stringMatch(hand[i].toString(), name)) return i;
+    }
+    return hand.size();
+}
+
 bool leadWinsTrick(int trumpSuit, Card leadCard, Card respCard)
 {
     if (leadCard.suit != trumpSuit && respCard.suit == trumpSuit) return false;
     if (leadCard.suit == respCard.suit && leadCard.rank < respCard.rank) return false;
     return true;
-}
-
-int findCard(std::string name, const std::vector<Card>& hand)
-{
-    for (int i = 0; i < (int) hand.size(); ++i)
-    {
-        if (hand[i].toString() == name) return i;
-    }
-    return hand.size();
 }
 
 int findExchangeCard(int trumpSuit, const std::vector<Card>& hand)
@@ -35,14 +49,14 @@ bool isMarriageCard(Card card)
 
 std::vector<bool> findMarriageSuits(const std::vector<Card>& hand)
 {
-    std::vector<int> marriageCounts(NUM_SUITES, 0);
+    std::vector<int> marriageCounts(NUM_SUITS, 0);
     for (int i = 0; i < (int) hand.size(); ++i)
     {
         if (isMarriageCard(hand[i])) ++marriageCounts[hand[i].suit];
     }
 
-    std::vector<bool> marriageSuits(NUM_SUITES);
-    for (int i = 0; i < NUM_SUITES; ++i)
+    std::vector<bool> marriageSuits(NUM_SUITS);
+    for (int i = 0; i < NUM_SUITS; ++i)
     {
         marriageSuits[i] = marriageCounts[i] == (int) MARRIAGE_RANKS.size();
     }

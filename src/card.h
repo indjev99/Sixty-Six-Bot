@@ -8,7 +8,7 @@
 #define R_TEN 4
 #define R_ACE 5
 
-#define NUM_SUITES 4
+#define NUM_SUITS 4
 #define S_SPADES 0
 #define S_HEARTS 1
 #define S_CLUBS 2

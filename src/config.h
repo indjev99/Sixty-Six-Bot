@@ -3,6 +3,8 @@
 #include "card.h"
 #include <vector>
 
+extern bool FANCY_PRINTING;
+
 const int HAND_SIZE = 6;
 const int TALON_ACT_TRESH = 4;
 const int EXCHANGE_RANK = R_NINE;

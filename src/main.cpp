@@ -3,6 +3,8 @@
 #include "player_random.h"
 #include "player_simple.h"
 #include "player_ui.h"
+#include "config.h"
+#include "util.h"
 #include "rng.h"
 #include <iostream>
 
@@ -30,9 +32,20 @@ int main()
 
     // std::cout << "Average result: " << benchmark(playSet, &playerSimple, &playerRandom, true, 10000) << "." << std::endl;
 
-    // playSet(&playerSimpleObserved, &playerSimple);
-
-    playSet(&playerHuman, &playerSimple);
+    while (true)
+    {
+        std::string command;
+        std::cout << "Play, obeserve, settings or exit: ";
+        std::cin >> command;
+        if (stringMatch(command, "Play")) playSet(&playerHuman, &playerSimple);
+        if (stringMatch(command, "Observe")) playSet(&playerSimpleObserved, &playerSimple);
+        if (stringMatch(command, "Settings"))
+        {
+            std::cout << "Enable fancy printing (0/1)? ";
+            std::cin >> FANCY_PRINTING;
+        }
+        if (stringMatch(command, "Exit")) break;
+    }
 
     return 0;
 }

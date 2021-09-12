@@ -48,7 +48,7 @@ int PlayerSimple::getMove()
 
     int targetMarriageSuit = -1;
     std::vector<bool> marriageSuits = findMarriageSuits(hand);
-    for (int i = 0; i < NUM_SUITES; ++i)
+    for (int i = 0; i < NUM_SUITS; ++i)
     {
         if (marriageSuits[i]) targetMarriageSuit = i;
     }
