@@ -62,6 +62,7 @@ void HumanPlayer::giveResponse(Card card)
 
 void HumanPlayer::giveGameResult(int points)
 {
+    std::cout << std::endl;
     if (points == 0) std::cout << "Draw." << std::endl;
     else
     {

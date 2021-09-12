@@ -61,14 +61,14 @@ int playGame(Player* leadPlayer, Player* respPlayer)
         }
         while (moveIdx >= (int) leadState.hand.size() || moveIdx < M_EXCHANGE ||
                (moveIdx == M_CLOSE && !canDoTalonAct) ||
-               (moveIdx == M_EXCHANGE && (!canDoTalonAct || exchangeIdx < (int) leadState.hand.size())));
+               (moveIdx == M_EXCHANGE && (!canDoTalonAct || exchangeIdx == (int) leadState.hand.size())));
 
         Move move;
         if (moveIdx >= 0)
         {
             move.type = M_PLAY;
             move.card = leadState.hand[moveIdx];
-            if (marriageSuites[move.card.suite] && std::find(MARRIAGE_RANKS.begin(), MARRIAGE_RANKS.end(), move.card.rank) != MARRIAGE_RANKS.end())
+            if (leadState.hasTakenTricks && marriageSuites[move.card.suite] && std::find(MARRIAGE_RANKS.begin(), MARRIAGE_RANKS.end(), move.card.rank) != MARRIAGE_RANKS.end())
             {
                 move.score = move.card.suite == trump ? TRUMP_MARRIAGE_VALUE : REG_MARRIAGE_VALUE;
             }
