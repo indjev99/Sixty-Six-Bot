@@ -22,6 +22,7 @@ int playGame(Player* leadPlayer, Player* respPlayer)
 {
     Talon talon;
     bool closed = false;
+    int trickNumber = 0;
     int trumpSuite = talon.lastCard().suite;
 
     PlayerGameState leadState, respState;
@@ -45,7 +46,7 @@ int playGame(Player* leadPlayer, Player* respPlayer)
         std::sort(respState.hand.begin(), respState.hand.end());
         respState.player->giveHand(respState.hand);
 
-        bool canDoTalonAct = !closed && leadState.hasTakenTricks && talon.size() >= TALON_ACT_TRESH;
+        bool canDoTalonAct = !closed && trickNumber > 0;
         int exchangeIdx = findExchangeCard(trumpSuite, leadState.hand);
         std::vector<bool> marriageSuites = findMarriageSuits(leadState.hand);
 
@@ -65,7 +66,7 @@ int playGame(Player* leadPlayer, Player* respPlayer)
         {
             move.type = M_PLAY;
             move.card = leadState.hand[moveIdx];
-            if (leadState.hasTakenTricks && marriageSuites[move.card.suite] && std::find(MARRIAGE_RANKS.begin(), MARRIAGE_RANKS.end(), move.card.rank) != MARRIAGE_RANKS.end())
+            if (trickNumber > 0 && marriageSuites[move.card.suite] && std::find(MARRIAGE_RANKS.begin(), MARRIAGE_RANKS.end(), move.card.rank) != MARRIAGE_RANKS.end())
             {
                 move.score = move.card.suite == trumpSuite ? TRUMP_MARRIAGE_VALUE : REG_MARRIAGE_VALUE;
             }
@@ -125,6 +126,8 @@ int playGame(Player* leadPlayer, Player* respPlayer)
             leadState.hand.push_back(talon.dealCard());
             respState.hand.push_back(talon.dealCard());
         }
+
+        ++trickNumber;
     }
 
     if (!closed && leadState.hand.empty()) leadState.score += LAST_TRICK_VALUE;
