@@ -63,25 +63,3 @@ std::vector<bool> findMarriageSuits(const std::vector<Card>& hand)
 
     return marriageSuits;
 }
-
-std::vector<int> findValidResponses(int trumpSuit, Card leadCard, const std::vector<Card>& hand)
-{
-    std::vector<int> suitdRaises;
-    std::vector<int> suitd;
-    std::vector<int> trumps;
-
-    for (int i = 0; i < (int) hand.size(); ++i)
-    {
-        if (hand[i].suit == trumpSuit) trumps.push_back(i);
-        if (hand[i].suit == leadCard.suit) suitd.push_back(i);
-        if (hand[i].suit == leadCard.suit && hand[i].rank > leadCard.rank) suitdRaises.push_back(i);
-    }
-
-    if (!suitdRaises.empty()) return suitdRaises;
-    else if (!suitd.empty()) return suitd;
-    else if (!trumps.empty()) return trumps;
-
-    std::vector<int> valid(hand.size());
-    std::iota(valid.begin(), valid.end(), 0);
-    return valid;
-}

@@ -71,15 +71,26 @@ std::vector<int> GameState::validActions()
     {
         if (closed || talon.size() == 0)
         {
-            return findValidResponses(trumpSuit, move.card, respState.hand);
+            std::vector<int> suitedRaises;
+            std::vector<int> suited;
+            std::vector<int> trumps;
+
+            for (int i = 0; i < (int) respState.hand.size(); ++i)
+            {
+                Card card = respState.hand[i];
+                if (card.suit == trumpSuit) trumps.push_back(i);
+                if (card.suit == move.card.suit) suited.push_back(i);
+                if (card.suit == move.card.suit && card.rank > move.card.rank) suitedRaises.push_back(i);
+            }
+
+            if (!suitedRaises.empty()) return suitedRaises;
+            else if (!suited.empty()) return suited;
+            else if (!trumps.empty()) return trumps;
         }
-        else
-        {
-            std::vector<int> valid;
-            valid.resize(respState.hand.size());
-            std::iota(valid.begin(), valid.end(), 0);
-            return valid;
-        }
+
+        std::vector<int> valid(respState.hand.size());
+        std::iota(valid.begin(), valid.end(), 0);
+        return valid;
     }
 }
 

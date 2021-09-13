@@ -17,6 +17,17 @@ struct PlayerGameState
 
 struct GameState
 {
+    GameState(Player* leadPlayer, Player* respPlayer);
+
+    std::vector<int> validActions();
+    void applyAction(int idx);
+    bool isTerminal();
+    int result();
+
+    void applyPlayerAction(int attempts);
+
+private:
+
     Talon talon;
     bool closed;
     int trickNumber;
@@ -28,12 +39,4 @@ struct GameState
     int noActionPlayer;
     bool giveInfo;
 
-    GameState(Player* leadPlayer, Player* respPlayer);
-
-    std::vector<int> validActions();
-    void applyAction(int idx);
-    bool isTerminal();
-    int result();
-
-    void applyPlayerAction(int attempts);
 };

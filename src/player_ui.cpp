@@ -143,13 +143,6 @@ void PlayerUI::giveSetResult(int result)
 
 int PlayerUI::getMove(const std::vector<int>& valid)
 {
-    std::cerr << "valid: ";
-    for (int v : valid)
-    {
-        std::cerr << v << " ";
-    }
-    std::cerr << std::endl;
-
     std::vector<int> moveScores(hand.size(), 0);
     std::vector<bool> marriageSuits = findMarriageSuits(hand);
 
@@ -195,13 +188,6 @@ int PlayerUI::getMove(const std::vector<int>& valid)
 
 int PlayerUI::getResponse(const std::vector<int>& valid)
 {
-    std::cerr << "valid: ";
-    for (int v : valid)
-    {
-        std::cerr << v << " ";
-    }
-    std::cerr << std::endl;
-
     int response = hand.size();
     if (player) response = player->getResponse(valid);
     else
