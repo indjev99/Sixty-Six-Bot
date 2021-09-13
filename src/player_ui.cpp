@@ -1,32 +1,20 @@
 #include "player_ui.h"
 #include "config.h"
+#include "printing.h"
 #include "util.h"
 #include <algorithm>
 #include <iostream>
 #include <conio.h>
-#include <windows.h>
 
-static const int DEFAULT_COLOR = 7;
-static const int SUIT_COLORS[NUM_SUITS] = {9, 12, 10, 14};
-
-static void overWriteAboveLine()
-{
-    if (FANCY_PRINTING)
-    {
-        std::cout << "\e[A";
-        std::cout << "                                                    ";
-        std::cout << "\r";
-    }
-}
+static const int SUIT_COLORS[NUM_SUITS] = {C_BLUE, C_RED, C_GREEN, C_YELLOW};
 
 static void printCard(Card card)
 {
     if (FANCY_PRINTING)
     {
-        HANDLE hConsole = GetStdHandle(STD_OUTPUT_HANDLE);
-        SetConsoleTextAttribute(hConsole, SUIT_COLORS[card.suit]);
+        setColor(SUIT_COLORS[card.suit]);
         std::cout << card.toString();
-        SetConsoleTextAttribute(hConsole, DEFAULT_COLOR);
+        resetColor();
     }
     else std::cout << card.toString();
 }
@@ -54,6 +42,7 @@ void PlayerUI::startSet()
 void PlayerUI::startGame()
 {
     if (player) player->startGame();
+
     trickNumber = 0;
 
     std::cout << std::endl;
@@ -64,6 +53,9 @@ void PlayerUI::startGame()
 void PlayerUI::giveState(bool closed, int talonSize, Card trumpCard, int selfScore, int oppScore)
 {
     if (player) player->giveState(closed, talonSize, trumpCard, selfScore, oppScore);
+
+    this->closed = closed;
+    this->talonSize = talonSize;
     if (trickNumber == 0) trumpSuit = trumpCard.suit;
 
     std::cout << std::endl;
@@ -84,6 +76,7 @@ void PlayerUI::giveState(bool closed, int talonSize, Card trumpCard, int selfSco
 void PlayerUI::giveHand(const std::vector<Card>& hand)
 {
     if (player) player->giveHand(hand);
+
     this->hand = hand;
 
     std::cout << std::endl;
@@ -160,6 +153,8 @@ int PlayerUI::getMove()
         }
     }
 
+    bool canDoTalonAct = !closed && trickNumber > 0 && talonSize >= TALON_ACT_TRESH;
+
     int move = hand.size();
     if (player) move = player->getMove();
     else
@@ -167,7 +162,7 @@ int PlayerUI::getMove()
         std::string moveStr;
         std::cout << "Select move: ";
         std::cin >> moveStr;
-        overWriteAboveLine();
+        if (FANCY_PRINTING) moveUpOneLine();
 
         if (stringMatch(moveStr, "Close")) move = M_CLOSE;
         else if (stringMatch(moveStr, "Exchange")) move = M_EXCHANGE;
@@ -181,8 +176,9 @@ int PlayerUI::getMove()
         if (moveScores[move] != 0) std::cout << " with " << moveScores[move];
         std::cout << "." << std::endl;
     }
-    else if (move == M_CLOSE) std::cout << "You closed the talon." << std::endl;
-    else if (move == M_EXCHANGE) std::cout << "You exchanged the face up trump card." << std::endl;
+    else if (move == M_CLOSE && canDoTalonAct) std::cout << "You closed the talon." << std::endl;
+    else if (move == M_EXCHANGE && canDoTalonAct && findExchangeCard(trumpSuit, hand) < (int) hand.size())
+        std::cout << "You exchanged the face up trump card." << std::endl;
 
     if (player) getch();
     return move;
@@ -200,7 +196,7 @@ int PlayerUI::getResponse(const std::vector<int>& valid)
         std::cout << "Select response: ";
         std::cin >> responseStr;
         response = findCard(responseStr, hand);
-        overWriteAboveLine();
+        if (FANCY_PRINTING) moveUpOneLine();
     }
 
     if (std::find(valid.begin(), valid.end(), response) != valid.end())

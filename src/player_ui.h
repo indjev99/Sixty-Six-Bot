@@ -26,6 +26,8 @@ private:
     Player* player;
 
     int trumpSuit;
+    bool closed;
+    int talonSize;
     int trickNumber;
     std::vector<Card> hand;
 };
