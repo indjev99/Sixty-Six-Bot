@@ -47,11 +47,9 @@ bool isBetter(int trumpSuit, Card card, Card other)
     return card.rank > other.rank;
 }
 
-int PlayerSimple::getMove()
+int PlayerSimple::getMove(const std::vector<int>& valid)
 {
-    bool canDoTalonAct = !closed && trickNumber > 0 && talonSize >= TALON_ACT_TRESH;
-
-    if (canDoTalonAct && findExchangeCard(trumpSuit, hand) < (int) hand.size()) return M_EXCHANGE;
+    if (std::find(valid.begin(), valid.end(), M_EXCHANGE) != valid.end()) return M_EXCHANGE;
 
     int targetMarriageSuit = -1;
     std::vector<bool> marriageSuits = findMarriageSuits(hand);
@@ -68,23 +66,21 @@ int PlayerSimple::getMove()
         }
     }
 
-    if (canDoTalonAct)
+    if (std::find(valid.begin(), valid.end(), M_CLOSE) != valid.end())
     {
         int prevSuit = NUM_SUITS;
         int closingScore = selfScore;
         bool canTake = false;
         int numTrumpsTaken = 0;
-        std::vector<Card> handTemp = hand;
-        std::sort(handTemp.begin(), handTemp.end());
-        for (int i = handTemp.size(); i >= 0; --i)
+        for (int i = hand.size(); i >= 0; --i)
         {
-            if (handTemp[i].suit != prevSuit) canTake = handTemp[i].rank == R_ACE;
-            else canTake = canTake && (handTemp[i].rank == handTemp[i + 1].rank - 1);
+            if (hand[i].suit != prevSuit) canTake = hand[i].rank == R_ACE;
+            else canTake = canTake && (hand[i].rank == hand[i + 1].rank - 1);
     
-            if (canTake) closingScore += CARD_VALUES[handTemp[i].rank] + CLOSE_TAKE_VALUE;
-            if (canTake && handTemp[i].suit == trumpSuit) ++numTrumpsTaken;
+            if (canTake) closingScore += CARD_VALUES[hand[i].rank] + CLOSE_TAKE_VALUE;
+            if (canTake && hand[i].suit == trumpSuit) ++numTrumpsTaken;
 
-            prevSuit = handTemp[i].suit;
+            prevSuit = hand[i].suit;
         }
 
         if (numTrumpsTaken >= (NUM_RANKS - 1) / 2 && closingScore >= WIN_TRESH) return M_CLOSE;
@@ -120,5 +116,6 @@ int PlayerSimple::getResponse(const std::vector<int>& valid)
     }
 
     ++trickNumber;
+
     return response;
 }

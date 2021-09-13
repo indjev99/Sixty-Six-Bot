@@ -18,7 +18,7 @@ struct PlayerUI : Player
     void giveGameResult(int newPoints, int selfPoints, int oppPoints) override;
     void giveSetResult(int result) override;
 
-    int getMove() override;
+    int getMove(const std::vector<int>& valid) override;
     int getResponse(const std::vector<int>& valid) override;
 
 private:

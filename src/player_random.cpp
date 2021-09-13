@@ -14,9 +14,9 @@ void PlayerRandom::giveHand(const std::vector<Card>& hand)
     handSize = hand.size();
 }
 
-int PlayerRandom::getMove()
+int PlayerRandom::getMove(const std::vector<int>& valid)
 {
-    return randInt(M_EXCHANGE, handSize);
+    return valid[randInt(0, valid.size())];
 }
 
 int PlayerRandom::getResponse(const std::vector<int>& valid)

@@ -17,6 +17,6 @@ struct Player
     virtual void giveGameResult(int newPoints, int selfPoints, int oppPoints) = 0;
     virtual void giveSetResult(int result) = 0;
 
-    virtual int getMove() = 0;
+    virtual int getMove(const std::vector<int>& valid) = 0;
     virtual int getResponse(const std::vector<int>& valid) = 0;
 };

@@ -13,3 +13,4 @@
 void setColor(int color);
 void resetColor();
 void moveUpOneLine();
+void waitForKeyPress();

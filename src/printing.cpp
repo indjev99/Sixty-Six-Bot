@@ -15,6 +15,7 @@
 #include "printing.h"
 #include <iostream>
 #include <string>
+#include <conio.h>
 
 static const std::string UNIX_COLOR_CODES[NUM_COLORS] = {
     "30",
@@ -96,3 +97,14 @@ void moveUpOneLine()
 }
 
 #endif
+
+char ctrl(char c)
+{
+    return c - 'a' + 1;
+}
+
+void waitForKeyPress()
+{
+    char c = getch();
+    if (c == ctrl('c') || c == ctrl('d')) exit(0);
+}

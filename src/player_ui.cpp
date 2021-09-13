@@ -4,7 +4,6 @@
 #include "util.h"
 #include <algorithm>
 #include <iostream>
-#include <conio.h>
 
 static const int SUIT_COLORS[NUM_SUITS] = {C_BLUE, C_RED, C_GREEN, C_YELLOW};
 
@@ -127,7 +126,8 @@ void PlayerUI::giveGameResult(int newPoints, int selfPoints, int oppPoints)
     std::cout << " | You have " << selfPoints << " " << pointsWord(selfPoints) << ".";
     std::cout << " | Opponent has " << oppPoints << " " << pointsWord(oppPoints) << ".";
     std::cout << std::endl;
-    getch();
+
+    waitForKeyPress();
 }
 
 void PlayerUI::giveSetResult(int result)
@@ -137,11 +137,19 @@ void PlayerUI::giveSetResult(int result)
     std::cout << std::endl;
     std::string doer = result > 0 ? "You" : "Opponent";
     std::cout << doer << " won the set." << std::endl;
-    getch();
+
+    waitForKeyPress();
 }
 
-int PlayerUI::getMove()
+int PlayerUI::getMove(const std::vector<int>& valid)
 {
+    std::cerr << "valid: ";
+    for (int v : valid)
+    {
+        std::cerr << v << " ";
+    }
+    std::cerr << std::endl;
+
     std::vector<int> moveScores(hand.size(), 0);
     std::vector<bool> marriageSuits = findMarriageSuits(hand);
 
@@ -153,10 +161,8 @@ int PlayerUI::getMove()
         }
     }
 
-    bool canDoTalonAct = !closed && trickNumber > 0 && talonSize >= TALON_ACT_TRESH;
-
     int move = hand.size();
-    if (player) move = player->getMove();
+    if (player) move = player->getMove(valid);
     else
     {
         std::string moveStr;
@@ -169,24 +175,32 @@ int PlayerUI::getMove()
         else move = findCard(moveStr, hand);
     }
 
-    if (move >= 0 && move < (int) hand.size())
+    if (std::find(valid.begin(), valid.end(), move) != valid.end())
     {
-        std::cout << "You played ";
-        printCard(hand[move]);
-        if (moveScores[move] != 0) std::cout << " with " << moveScores[move];
-        std::cout << "." << std::endl;
-    }
-    else if (move == M_CLOSE && canDoTalonAct) std::cout << "You closed the talon." << std::endl;
-    else if (move == M_EXCHANGE && canDoTalonAct && findExchangeCard(trumpSuit, hand) < (int) hand.size())
-        std::cout << "You exchanged the face up trump card." << std::endl;
+        if (move == M_CLOSE) std::cout << "You closed the talon." << std::endl;
+        else if (move == M_EXCHANGE) std::cout << "You exchanged the face up trump card." << std::endl;
+        else
+        {
+            std::cout << "You played ";
+            printCard(hand[move]);
+            if (moveScores[move] != 0) std::cout << " with " << moveScores[move];
+            std::cout << "." << std::endl;
+        }
 
-    if (player) getch();
+        if (player) waitForKeyPress();
+    }
+
     return move;
 }
 
 int PlayerUI::getResponse(const std::vector<int>& valid)
 {
-    ++trickNumber;
+    std::cerr << "valid: ";
+    for (int v : valid)
+    {
+        std::cerr << v << " ";
+    }
+    std::cerr << std::endl;
 
     int response = hand.size();
     if (player) response = player->getResponse(valid);
@@ -204,8 +218,11 @@ int PlayerUI::getResponse(const std::vector<int>& valid)
         std::cout << "You responded with ";
         printCard(hand[response]);
         std::cout << "." << std::endl;
+
+        if (player) waitForKeyPress();
     }
 
-    if (player) getch();
+    ++trickNumber;
+
     return response;
 }

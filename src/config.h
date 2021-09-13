@@ -22,6 +22,6 @@ const int WIN_POINTS = 1;
 const int BIGWIN_POINTS = 2;
 const int VALATWIN_POINTS = 3;
 const int CLOSEFAIL_POINTS = 3;
-const int NOMOVE_POINTS = 20;
+const int NOACTION_POINTS = 20;
 
 const int POINT_TRESH = 11;
