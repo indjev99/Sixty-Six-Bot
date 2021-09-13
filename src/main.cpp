@@ -35,8 +35,10 @@ int main()
     while (true)
     {
         std::string command;
+        std::cout << std::endl;
         std::cout << "Play, obeserve, settings or exit: ";
         std::cin >> command;
+
         if (stringMatch(command, "Play")) playSet(&playerHuman, &playerSimple);
         if (stringMatch(command, "Observe")) playSet(&playerSimpleObserved, &playerSimple);
         if (stringMatch(command, "Settings"))

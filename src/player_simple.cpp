@@ -4,6 +4,9 @@
 #include "rng.h"
 #include <algorithm>
 
+static const int CLOSE_TAKE_VALUE = CARD_VALUES[R_QUEEN];
+static const int KEEP_TRUMP_VALUE = CARD_VALUES[R_ACE];
+
 void PlayerSimple::startSet() {}
 
 void PlayerSimple::startGame()
@@ -73,7 +76,7 @@ int PlayerSimple::getMove()
         {
             if (hand[i].suit != prevSuit) canTake = hand[i].rank == R_ACE;
             else canTake = canTake && (hand[i].rank == hand[i + 1].rank - 1);
-            if (canTake) closingScore += CARD_VALUES[hand[i].rank] + CARD_VALUES[R_QUEEN];
+            if (canTake) closingScore += CARD_VALUES[hand[i].rank] + CLOSE_TAKE_VALUE;
         }
 
         if (closingScore >= WIN_TRESH) return M_CLOSE;
@@ -96,10 +99,10 @@ int PlayerSimple::getResponse(const std::vector<int>& valid)
 
     for (int i : valid)
     {
-        if (hand[i].suit == trumpSuit) priorities[i] -= hand[i].rank;
+        if (hand[i].suit == trumpSuit) priorities[i] -= KEEP_TRUMP_VALUE + hand[i].rank;
         if (marriageSuits[hand[i].suit] && isMarriageCard(hand[i])) priorities[i] -= hand[i].suit != trumpSuit ? REG_MARRIAGE_VALUE : TRUMP_MARRIAGE_VALUE;
-        if (!leadWinsTrick(trumpSuit, leadCard, hand[i])) priorities[i] += CARD_VALUES[leadCard.rank] + (hand[i].suit != trumpSuit) * CARD_VALUES[hand[i].suit];
-        else priorities[i] -= CARD_VALUES[leadCard.rank] + CARD_VALUES[hand[i].suit];
+        if (!leadWinsTrick(trumpSuit, leadCard, hand[i])) priorities[i] += CARD_VALUES[leadCard.rank] + (hand[i].suit != trumpSuit) * CARD_VALUES[hand[i].rank];
+        else priorities[i] -= CARD_VALUES[leadCard.rank] + CARD_VALUES[hand[i].rank];
     }
 
     int response = -1;
