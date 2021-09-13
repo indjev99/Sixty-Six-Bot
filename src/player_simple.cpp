@@ -3,9 +3,10 @@
 #include "util.h"
 #include "rng.h"
 #include <algorithm>
+#include <numeric>
 
-static const int CLOSE_TAKE_VALUE = CARD_VALUES[R_QUEEN];
-static const int KEEP_TRUMP_VALUE = CARD_VALUES[R_ACE];
+static const int CLOSE_TAKE_VALUE = (std::accumulate(CARD_VALUES, CARD_VALUES + NUM_RANKS, 0) + NUM_RANKS / 2) / NUM_RANKS;
+static const int KEEP_TRUMP_VALUE = CARD_VALUES[NUM_RANKS - 1];
 
 void PlayerSimple::startSet() {}
 
@@ -72,14 +73,19 @@ int PlayerSimple::getMove()
         int prevSuit = NUM_SUITS;
         int closingScore = selfScore;
         bool canTake = false;
+        int numTrumpsTaken = 0;
         for (int i = hand.size(); i >= 0; --i)
         {
             if (hand[i].suit != prevSuit) canTake = hand[i].rank == R_ACE;
             else canTake = canTake && (hand[i].rank == hand[i + 1].rank - 1);
+    
             if (canTake) closingScore += CARD_VALUES[hand[i].rank] + CLOSE_TAKE_VALUE;
+            if (canTake && hand[i].suit == trumpSuit) ++numTrumpsTaken;
+
+            prevSuit = hand[i].suit;
         }
 
-        if (closingScore >= WIN_TRESH) return M_CLOSE;
+        if (numTrumpsTaken >= (NUM_RANKS - 1) / 2 && closingScore >= WIN_TRESH) return M_CLOSE;
     }
 
     int move = -1;

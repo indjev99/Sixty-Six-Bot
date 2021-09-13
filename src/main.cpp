@@ -6,17 +6,25 @@
 #include "config.h"
 #include "util.h"
 #include "rng.h"
+#include <math.h>
 #include <iostream>
 
-double benchmark(int (play)(Player*, Player*), Player* leadPlayer, Player* respPlayer, bool alternate, int trials)
+std::pair<double, double> benchmark(int (play)(Player*, Player*), Player* leadPlayer, Player* respPlayer, bool alternate, int trials)
 {
     int total = 0;
+    int totalSq = 0;
     for (int i = 0; i < trials; ++i)
     {
-        if (alternate && i % 2 == 1) total -= playSet(respPlayer, leadPlayer);
-        else total += playSet(leadPlayer, respPlayer);
+        int res;
+        if (alternate && i % 2 == 1) res = -playSet(respPlayer, leadPlayer);
+        else res = playSet(leadPlayer, respPlayer);
+        total += res;
+        totalSq += res * res;
     }
-    return (double) total / trials;
+    double mean = (double) total / trials;
+    double meanSq = (double) totalSq / trials;
+    double std = sqrt((meanSq - mean * mean) / trials);
+    return {mean, std};
 }
 
 int main()
@@ -30,7 +38,9 @@ int main()
     PlayerSimple playerSimpleUnderlying;
     PlayerUI playerSimpleObserved(&playerSimpleUnderlying);
 
-    // std::cout << "Average result: " << benchmark(playSet, &playerSimple, &playerRandom, true, 10000) << "." << std::endl;
+    // std::pair<double, double> stats;
+    // stats = benchmark(playSet, &playerSimple, &playerRandom, true, 10000);
+    // std::cout << "Result: " << stats.first << " +- " << stats.second << "." << std::endl;
 
     while (true)
     {
