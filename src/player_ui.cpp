@@ -54,9 +54,9 @@ void PlayerUI::giveState(bool closed, int talonSize, Card trumpCard, int selfSco
 {
     if (player) player->giveState(closed, talonSize, trumpCard, selfScore, oppScore);
 
+    if (trickNumber == 0) trumpSuit = trumpCard.suit;
     this->closed = closed;
     this->talonSize = talonSize;
-    if (trickNumber == 0) trumpSuit = trumpCard.suit;
 
     std::cout << std::endl;
     std::cout << "Your score is " << selfScore << ".";

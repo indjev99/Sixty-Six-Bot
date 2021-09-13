@@ -13,9 +13,10 @@ void PlayerSimple::startGame()
 
 void PlayerSimple::giveState(bool closed, int talonSize, Card trumpCard, int selfScore, int oppScore)
 {
+    if (trickNumber == 0) trumpSuit = trumpCard.suit;
     this->closed = closed;
     this->talonSize = talonSize;
-    if (trickNumber == 0) trumpSuit = trumpCard.suit;
+    this->selfScore = selfScore;
 }
 
 void PlayerSimple::giveHand(const std::vector<Card>& hand)
@@ -44,7 +45,9 @@ bool isBetter(int trumpSuit, Card card, Card other)
 
 int PlayerSimple::getMove()
 {
-    if (!closed && trickNumber > 0 && talonSize >= TALON_ACT_TRESH && findExchangeCard(trumpSuit, hand) < (int) hand.size()) return M_EXCHANGE;
+    bool canDoTalonAct = !closed && trickNumber > 0 && talonSize >= TALON_ACT_TRESH;
+
+    if (canDoTalonAct && findExchangeCard(trumpSuit, hand) < (int) hand.size()) return M_EXCHANGE;
 
     int targetMarriageSuit = -1;
     std::vector<bool> marriageSuits = findMarriageSuits(hand);
@@ -59,6 +62,21 @@ int PlayerSimple::getMove()
         {
             if (hand[i].suit == targetMarriageSuit && hand[i].rank == MARRIAGE_RANKS.front()) return i;
         }
+    }
+
+    if (canDoTalonAct)
+    {
+        int prevSuit = NUM_SUITS;
+        int closingScore = selfScore;
+        bool canTake = false;
+        for (int i = hand.size(); i >= 0; --i)
+        {
+            if (hand[i].suit != prevSuit) canTake = hand[i].rank == R_ACE;
+            else canTake = canTake && (hand[i].rank == hand[i + 1].rank - 1);
+            if (canTake) closingScore += CARD_VALUES[hand[i].rank] + CARD_VALUES[R_QUEEN];
+        }
+
+        if (closingScore >= WIN_TRESH) return M_CLOSE;
     }
 
     int move = -1;
@@ -78,7 +96,7 @@ int PlayerSimple::getResponse(const std::vector<int>& valid)
 
     for (int i : valid)
     {
-        if (hand[i].suit == trumpSuit) priorities[i] -= 5 + hand[i].rank;
+        if (hand[i].suit == trumpSuit) priorities[i] -= hand[i].rank;
         if (marriageSuits[hand[i].suit] && isMarriageCard(hand[i])) priorities[i] -= hand[i].suit != trumpSuit ? REG_MARRIAGE_VALUE : TRUMP_MARRIAGE_VALUE;
         if (!leadWinsTrick(trumpSuit, leadCard, hand[i])) priorities[i] += CARD_VALUES[leadCard.rank] + (hand[i].suit != trumpSuit) * CARD_VALUES[hand[i].suit];
         else priorities[i] -= CARD_VALUES[leadCard.rank] + CARD_VALUES[hand[i].suit];
