@@ -64,19 +64,25 @@ void PlayerMCTS::giveHand(const std::vector<Card>& hand)
     }
 }
 
-void PlayerMCTS::giveMove(Move move)
+void PlayerMCTS::giveMove(Move move, bool self)
 {
-    if (move.type == M_CLOSE) oppState.hasClosed = true;
-    else if (move.type == M_EXCHANGE) setCardKnown(lastTrumpCard);
+    PlayerGameState& leadState = self ? selfState : oppState;
+    if (move.type == M_CLOSE) leadState.hasClosed = true;
     else if (move.type == M_PLAY)
     {
         lastMove = move;
+        leadState.score += move.score;
+    }
 
+    if (self) return;
+
+    if (move.type == M_EXCHANGE) setCardKnown(lastTrumpCard);
+    else if (move.type == M_PLAY)
+    {
         unseenCards.erase(std::remove(unseenCards.begin(), unseenCards.end(), move.card), unseenCards.end());
         knownOppCards.erase(std::remove(knownOppCards.begin(), knownOppCards.end(), move.card), knownOppCards.end());
         if (move.score != 0)
         {
-            oppState.score += move.score;
             for (int rank : MARRIAGE_RANKS)
             {
                 if (rank == move.card.rank) continue;
@@ -88,20 +94,23 @@ void PlayerMCTS::giveMove(Move move)
 
 // TODO: deduce info from responses after closing
 
-void PlayerMCTS::giveResponse(Card card)
+void PlayerMCTS::giveResponse(Card card, bool self)
 {
-    if (leadWinsTrick(trumpSuit, lastMove.card, card))
-    {
-        selfState.hasTakenTricks = true;
-        if (talonSize == 2) setCardKnown(lastTrumpCard);
-    }
-    else oppState.hasTakenTricks = true;
+    PlayerGameState& leadState = self ? oppState : selfState;
+    PlayerGameState& respState = self ? selfState : oppState;
 
-    unseenCards.erase(std::remove(unseenCards.begin(), unseenCards.end(), card), unseenCards.end());
-    knownOppCards.erase(std::remove(knownOppCards.begin(), knownOppCards.end(), card), knownOppCards.end());
+    if (leadWinsTrick(trumpSuit, lastMove.card, card)) leadState.hasTakenTricks = true;
+    else respState.hasTakenTricks = true;
+
+    if (!closed && talonSize == 2 && leadWinsTrick(trumpSuit, lastMove.card, card) != self) setCardKnown(lastTrumpCard);
 
     ++trickNumber;
     lastMove.type = M_NONE;
+
+    if (self) return;
+
+    unseenCards.erase(std::remove(unseenCards.begin(), unseenCards.end(), card), unseenCards.end());
+    knownOppCards.erase(std::remove(knownOppCards.begin(), knownOppCards.end(), card), knownOppCards.end());
 }
 
 void PlayerMCTS::giveGameResult(int newPoints, int selfPoints, int oppPoints) {}
@@ -110,33 +119,12 @@ void PlayerMCTS::giveSetResult(int result) {}
 int PlayerMCTS::getMove(const std::vector<int>& valid)
 {
     int move = getAction();
-
-    if (move >= 0)
-    {
-        lastMove.type = M_PLAY;
-        lastMove.card = hand[move];
-    }
-    else if (move == M_CLOSE) selfState.hasClosed = true;
-
     return move;
 }
 
 int PlayerMCTS::getResponse(const std::vector<int>& valid)
 {
     int response = getAction();
-
-    Card card = hand[response];
-
-    if (leadWinsTrick(trumpSuit, lastMove.card, card)) oppState.hasTakenTricks = true;
-    else
-    {
-        selfState.hasTakenTricks = true;
-        if (talonSize == 2) setCardKnown(lastTrumpCard);
-    }
-
-    ++trickNumber;
-    lastMove.type = M_NONE;
-
     return response;
 }
 

@@ -12,8 +12,8 @@ struct PlayerMCTS : Player
 
     void giveState(bool closed, int talonSize, Card trumpCard, int selfScore, int oppScore) override;
     void giveHand(const std::vector<Card>& hand) override;
-    void giveMove(Move move) override;
-    void giveResponse(Card card) override;
+    void giveMove(Move move, bool self) override;
+    void giveResponse(Card card, bool self) override;
 
     void giveGameResult(int newPoints, int selfPoints, int oppPoints) override;
     void giveSetResult(int result) override;

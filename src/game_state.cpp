@@ -142,7 +142,11 @@ void GameState::applyAction(int idx)
         }
         else move.type = idx;
 
-        if (leadState.player && respState.player) respState.player->giveMove(move);
+        if (leadState.player && respState.player)
+        {
+            leadState.player->giveMove(move, true);
+            respState.player->giveMove(move, false);
+        }
 
         if (move.type == M_PLAY)
         {
@@ -169,7 +173,11 @@ void GameState::applyAction(int idx)
         Card response = respState.hand[idx];
         respState.hand.erase(respState.hand.begin() + idx);
 
-        if (leadState.player && respState.player) leadState.player->giveResponse(response);
+        if (leadState.player && respState.player)
+        {
+            leadState.player->giveResponse(response, false);
+            respState.player->giveResponse(response, true);
+        }
 
         if (!leadWinsTrick(trumpSuit, move.card, response)) std::swap(leadState, respState);
 

@@ -75,28 +75,34 @@ void PlayerUI::giveHand(const std::vector<Card>& hand)
     std::cout << "." << std::endl;
 }
 
-void PlayerUI::giveMove(Move move)
+void PlayerUI::giveMove(Move move, bool self)
 {
-    if (player) player->giveMove(move);
+    if (player) player->giveMove(move, self);
 
+    std::string doer = self ? "You" : "Opponent";
     if (move.type == M_PLAY)
     {
-        std::cout << "Opponent played ";
+        std::cout << doer << " played ";
         printCard(move.card);
         if (move.score != 0) std::cout << " with " << move.score;
         std::cout << "." << std::endl;
     }
-    else if (move.type == M_CLOSE) std::cout << "Opponent closed the talon." << std::endl;
-    else if (move.type == M_EXCHANGE) std::cout << "Opponent exchanged the face up trump card." << std::endl;
+    else if (move.type == M_CLOSE) std::cout << doer << " closed the talon." << std::endl;
+    else if (move.type == M_EXCHANGE) std::cout << doer << " exchanged the face up trump card." << std::endl;
+
+    if (move.type != M_PLAY && !self) waitForKeyPress();
 }
 
-void PlayerUI::giveResponse(Card card)
+void PlayerUI::giveResponse(Card card, bool self)
 {
-    if (player) player->giveResponse(card);
+    if (player) player->giveResponse(card, self);
 
-    std::cout << "Opponent responded with ";
+    std::string doer = self ? "You" : "Opponent";
+    std::cout << doer << " responded with ";
     printCard(card);
     std::cout << "." << std::endl;
+
+    if (player) waitForKeyPress();
 
     ++trickNumber;
 }
@@ -145,29 +151,6 @@ int PlayerUI::getMove(const std::vector<int>& valid)
         else if (stringMatch(moveStr, "Exchange")) move = M_EXCHANGE;
         else move = findCard(moveStr, hand);
     }
-
-    if (std::find(valid.begin(), valid.end(), move) != valid.end())
-    {
-        if (move == M_CLOSE) std::cout << "You closed the talon." << std::endl;
-        else if (move == M_EXCHANGE) std::cout << "You exchanged the face up trump card." << std::endl;
-        else
-        {
-            int moveScore = 0;
-            std::vector<bool> marriageSuits = findMarriageSuits(hand);
-            if (trickNumber > 0 && marriageSuits[hand[move].suit] && isMarriageCard(hand[move].rank))
-            {
-                moveScore = hand[move].suit == trumpSuit ? TRUMP_MARRIAGE_VALUE : REG_MARRIAGE_VALUE;
-            }
-
-            std::cout << "You played ";
-            printCard(hand[move]);
-            if (moveScore != 0) std::cout << " with " << moveScore;
-            std::cout << "." << std::endl;
-        }
-
-        if (player) waitForKeyPress();
-    }
-
     return move;
 }
 
@@ -183,17 +166,5 @@ int PlayerUI::getResponse(const std::vector<int>& valid)
         response = findCard(responseStr, hand);
         if (FANCY_PRINTING) moveUpOneLine();
     }
-
-    if (std::find(valid.begin(), valid.end(), response) != valid.end())
-    {
-        std::cout << "You responded with ";
-        printCard(hand[response]);
-        std::cout << "." << std::endl;
-
-        if (player) waitForKeyPress();
-    }
-
-    ++trickNumber;
-
     return response;
 }

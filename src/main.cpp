@@ -38,14 +38,14 @@ PlayerUI playerHuman;
 PlayerRandom playerRandom;
 PlayerSimple playerSimple;
 PlayerMCTS playerMCTSLight(625);
-PlayerMCTS playerMCTSMid(2500);
-PlayerMCTS playerMCTSHeavy(10000);
+PlayerMCTS playerMCTSMid(5000);
+PlayerMCTS playerMCTSHeavy(40000);
 
 PlayerRandom playerRandomClone;
 PlayerSimple playerSimpleClone;
 PlayerMCTS playerMCTSLightClone(625);
-PlayerMCTS playerMCTSMidClone(2500);
-PlayerMCTS playerMCTSHeavyClone(10000);
+PlayerMCTS playerMCTSMidClone(5000);
+PlayerMCTS playerMCTSHeavyClone(40000);
 
 std::vector<Player*> playerBots = {&playerRandom, &playerSimple, &playerMCTSLight, &playerMCTSMid, &playerMCTSHeavy};
 std::vector<Player*> playerBotClones = {&playerRandomClone, &playerSimpleClone, &playerMCTSLightClone, &playerMCTSMidClone, &playerMCTSHeavyClone};
@@ -68,7 +68,7 @@ int main()
     timeSeedRNG();
 
     // std::pair<double, double> stats;
-    // stats = benchmark(playGame, &playerMCTSLight, &playerSimple, true, 500);
+    // stats = benchmark(playGame, &playerMCTSHeavy, &playerSimple, true, 500);
     // std::cout << "Result: " << stats.first << " +- " << stats.second << "." << std::endl;
 
     while (true)
@@ -80,7 +80,10 @@ int main()
 
         if (stringMatch(command, "Play"))
         {
-            playSet(&playerHuman, choosePlayer(true));
+            Player* playerLead = &playerHuman;
+            Player* playerResp = choosePlayer(true);
+            if (randInt(0, 2)) std::swap(playerLead, playerResp);
+            playSet(playerLead, playerResp);
         }
         else if (stringMatch(command, "Observe"))
         {

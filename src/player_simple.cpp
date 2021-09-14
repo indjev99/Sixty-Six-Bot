@@ -28,12 +28,12 @@ void PlayerSimple::giveHand(const std::vector<Card>& hand)
     this->hand = hand;
 }
 
-void PlayerSimple::giveMove(Move move)
+void PlayerSimple::giveMove(Move move, bool self)
 {
     leadCard = move.card;
 }
 
-void PlayerSimple::giveResponse(Card card)
+void PlayerSimple::giveResponse(Card card, bool self)
 {
     ++trickNumber;
 }
@@ -114,8 +114,6 @@ int PlayerSimple::getResponse(const std::vector<int>& valid)
     {
         if (response == -1 || priorities[i] > priorities[response]) response = i;
     }
-
-    ++trickNumber;
 
     return response;
 }
