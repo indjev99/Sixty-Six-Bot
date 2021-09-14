@@ -52,7 +52,7 @@ GameState::GameState(int trumpSuit, int trickNumber, bool closed, Move move, con
     trumpSuit(NUM_SUITS),
     trickNumber(0),
     closed(0),
-    move(),
+    move(move),
     leadState(leadState),
     respState(respState),
     talon(talon),
@@ -208,7 +208,7 @@ void GameState::applyAction(int idx)
 
 bool GameState::isTerminal()
 {
-    return leadState.score >= WIN_TRESH || leadState.hand.empty() || noActionPlayer;
+    return leadState.score >= WIN_TRESH || respState.hand.empty() || noActionPlayer;
 }
 
 int GameState::result()
