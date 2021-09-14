@@ -50,8 +50,8 @@ GameState::GameState(Player* leadPlayer, Player* respPlayer):
 GameState::GameState(int trumpSuit, int trickNumber, bool closed, Move move, const PlayerGameState& leadState,
                      const PlayerGameState& respState, const std::vector<Card>& talon):
     trumpSuit(NUM_SUITS),
-    trickNumber(0),
-    closed(0),
+    trickNumber(trickNumber),
+    closed(closed),
     move(move),
     leadState(leadState),
     respState(respState),
