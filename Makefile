@@ -5,7 +5,8 @@
 # Compiler settings - Can be customized.
 CC = g++
 CXXFLAGS = -std=c++11 -Wall -O3
-LDFLAGS = -static -static-libgcc -static-libstdc++
+LDFLAGS = -static-libgcc -static-libstdc++
+# LDFLAGS =
 
 # Makefile settings - Can be customized.
 APPNAME = Sixty-Six-Bot

@@ -21,6 +21,11 @@ struct Card
     int rank;
     int suit;
 
+    Card();
+    Card(int code);
+    Card(int rank, int suit);
+
+    int code() const;
     std::string toString() const;
 };
 

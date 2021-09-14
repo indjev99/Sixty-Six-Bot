@@ -17,8 +17,4 @@ struct PlayerRandom : Player
 
     int getMove(const std::vector<int>& valid) override;
     int getResponse(const std::vector<int>& valid) override;
-
-private:
-
-    int handSize;
 };

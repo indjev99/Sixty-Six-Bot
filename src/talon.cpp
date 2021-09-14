@@ -16,6 +16,9 @@ Talon::Talon()
     std::shuffle(cards.begin(), cards.end(), RNG);
 }
 
+Talon::Talon(const std::vector<Card>& cards):
+    cards(cards) {}
+
 int Talon::size() const
 {
     return cards.size();

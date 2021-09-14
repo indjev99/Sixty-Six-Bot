@@ -9,7 +9,7 @@
 
 struct Move
 {
-    int type;
+    int type = M_NONE;
     Card card;
     int score = 0;
 };

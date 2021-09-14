@@ -104,7 +104,7 @@ int PlayerSimple::getResponse(const std::vector<int>& valid)
     for (int i : valid)
     {
         if (hand[i].suit == trumpSuit) priorities[i] -= KEEP_TRUMP_VALUE + hand[i].rank;
-        if (marriageSuits[hand[i].suit] && isMarriageCard(hand[i])) priorities[i] -= hand[i].suit != trumpSuit ? REG_MARRIAGE_VALUE : TRUMP_MARRIAGE_VALUE;
+        if (marriageSuits[hand[i].suit] && isMarriageCard(hand[i].rank)) priorities[i] -= hand[i].suit != trumpSuit ? REG_MARRIAGE_VALUE : TRUMP_MARRIAGE_VALUE;
         if (!leadWinsTrick(trumpSuit, leadCard, hand[i])) priorities[i] += CARD_VALUES[leadCard.rank] + (hand[i].suit != trumpSuit) * CARD_VALUES[hand[i].rank];
         else priorities[i] -= CARD_VALUES[leadCard.rank] + CARD_VALUES[hand[i].rank];
     }

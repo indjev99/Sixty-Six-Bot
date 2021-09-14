@@ -21,10 +21,11 @@ struct PlayerSimple : Player
 private:
 
     int trumpSuit;
-    bool closed;
-    int talonSize;
-    int selfScore;
     int trickNumber;
+    bool closed;
     Card leadCard;
+    int selfScore;
+    int talonSize;
+
     std::vector<Card> hand;
 };

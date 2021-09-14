@@ -6,6 +6,7 @@
 struct Talon
 {
     Talon();
+    Talon(const std::vector<Card>& cards);
 
     int size() const;
     std::vector<Card> dealHand();

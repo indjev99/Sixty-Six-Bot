@@ -16,8 +16,8 @@ std::pair<double, double> benchmark(int (play)(Player*, Player*), Player* leadPl
     for (int i = 0; i < trials; ++i)
     {
         int res;
-        if (alternate && i % 2 == 1) res = -playSet(respPlayer, leadPlayer);
-        else res = playSet(leadPlayer, respPlayer);
+        if (alternate && i % 2 == 1) res = -play(respPlayer, leadPlayer);
+        else res = play(leadPlayer, respPlayer);
         total += res;
         totalSq += res * res;
     }

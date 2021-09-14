@@ -110,6 +110,8 @@ void PlayerUI::giveResponse(Card card)
     std::cout << "Opponent responded with ";
     printCard(card);
     std::cout << "." << std::endl;
+
+    ++trickNumber;
 }
 
 void PlayerUI::giveGameResult(int newPoints, int selfPoints, int oppPoints)
@@ -143,17 +145,6 @@ void PlayerUI::giveSetResult(int result)
 
 int PlayerUI::getMove(const std::vector<int>& valid)
 {
-    std::vector<int> moveScores(hand.size(), 0);
-    std::vector<bool> marriageSuits = findMarriageSuits(hand);
-
-    for (int i = 0; i < (int) hand.size(); ++i)
-    {
-        if (trickNumber > 0 && marriageSuits[hand[i].suit] && isMarriageCard(hand[i]))
-        {
-            moveScores[i] = hand[i].suit == trumpSuit ? TRUMP_MARRIAGE_VALUE : REG_MARRIAGE_VALUE;
-        }
-    }
-
     int move = hand.size();
     if (player) move = player->getMove(valid);
     else
@@ -174,9 +165,16 @@ int PlayerUI::getMove(const std::vector<int>& valid)
         else if (move == M_EXCHANGE) std::cout << "You exchanged the face up trump card." << std::endl;
         else
         {
+            int moveScore = 0;
+            std::vector<bool> marriageSuits = findMarriageSuits(hand);
+            if (trickNumber > 0 && marriageSuits[hand[move].suit] && isMarriageCard(hand[move].rank))
+            {
+                moveScore = hand[move].suit == trumpSuit ? TRUMP_MARRIAGE_VALUE : REG_MARRIAGE_VALUE;
+            }
+
             std::cout << "You played ";
             printCard(hand[move]);
-            if (moveScores[move] != 0) std::cout << " with " << moveScores[move];
+            if (moveScore != 0) std::cout << " with " << moveScore;
             std::cout << "." << std::endl;
         }
 
