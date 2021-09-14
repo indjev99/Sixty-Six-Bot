@@ -4,6 +4,7 @@
 #include "util.h"
 #include <algorithm>
 #include <numeric>
+#include <assert.h>
 
 PlayerGameState::PlayerGameState():
     mult(0),
@@ -18,14 +19,6 @@ PlayerGameState::PlayerGameState(int mult, Player* player):
     score(0),
     hasTakenTricks(false),
     hasClosed(false) {}
-
-PlayerGameState::PlayerGameState(int mult, int score, bool hasTakenTrick, bool hasClosed, const std::vector<Card>& hand):
-    mult(mult),
-    player(nullptr),
-    score(score),
-    hasTakenTricks(hasTakenTrick),
-    hasClosed(hasClosed),
-    hand(hand) {}
 
 GameState::GameState(Player* leadPlayer, Player* respPlayer):
     trickNumber(0),
@@ -49,21 +42,14 @@ GameState::GameState(Player* leadPlayer, Player* respPlayer):
 
 GameState::GameState(int trumpSuit, int trickNumber, bool closed, Move move, const PlayerGameState& leadState,
                      const PlayerGameState& respState, const std::vector<Card>& talon):
-    trumpSuit(NUM_SUITS),
+    trumpSuit(trumpSuit),
     trickNumber(trickNumber),
     closed(closed),
     move(move),
     leadState(leadState),
     respState(respState),
     talon(talon),
-    noActionPlayer(0)
-{
-    if (leadState.player && respState.player)
-    {
-        leadState.player->startGame();
-        respState.player->startGame();
-    }
-}
+    noActionPlayer(0) {}
 
 void GameState::setPlayers(Player* leadPlayer, Player* respPlayer)
 {
@@ -71,12 +57,6 @@ void GameState::setPlayers(Player* leadPlayer, Player* respPlayer)
 
     leadState.player = leadPlayer;
     respState.player = respPlayer;
-
-    if (leadState.player && respState.player)
-    {
-        leadState.player->startGame();
-        respState.player->startGame();
-    }
 }
 
 int GameState::currentPlayer()
@@ -91,8 +71,10 @@ std::vector<int> GameState::validActions()
     {
         if (leadState.player && respState.player)
         {
-            leadState.player->giveState(closed, talon.size(), talon.lastCard(), leadState.score, respState.score);
-            respState.player->giveState(closed, talon.size(), talon.lastCard(), respState.score, leadState.score);
+            Card lastCard;
+            if (talon.size() > 0) lastCard = talon.lastCard();
+            leadState.player->giveState(closed, talon.size(), lastCard, leadState.score, respState.score);
+            respState.player->giveState(closed, talon.size(), lastCard, respState.score, leadState.score);
 
             std::sort(leadState.hand.begin(), leadState.hand.end());
             std::sort(respState.hand.begin(), respState.hand.end());
@@ -141,6 +123,7 @@ std::vector<int> GameState::validActions()
         return valid;
     }
 }
+
 
 void GameState::applyAction(int idx)
 {
@@ -217,8 +200,10 @@ int GameState::result()
 
     if (leadState.player && respState.player)
     {
-        leadState.player->giveState(closed, talon.size(), talon.lastCard(), leadState.score, respState.score);
-        respState.player->giveState(closed, talon.size(), talon.lastCard(), respState.score, leadState.score);
+        Card lastCard;
+        if (talon.size() > 0) lastCard = talon.lastCard();
+        leadState.player->giveState(closed, talon.size(), lastCard, leadState.score, respState.score);
+        respState.player->giveState(closed, talon.size(), lastCard, respState.score, leadState.score);
     }
 
     if (closed && !leadState.hasClosed) std::swap(leadState, respState);

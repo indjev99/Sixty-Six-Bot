@@ -2,6 +2,7 @@
 #include "config.h"
 #include "rng.h"
 #include <algorithm>
+#include <assert.h>
 
 Talon::Talon()
 {
@@ -26,6 +27,7 @@ int Talon::size() const
 
 std::vector<Card> Talon::dealHand()
 {
+    assert((int) cards.size() >= HAND_SIZE);
     std::vector<Card> hand(cards.end() - HAND_SIZE, cards.end());
     cards.resize(cards.size() - HAND_SIZE);
     return hand;
@@ -33,6 +35,7 @@ std::vector<Card> Talon::dealHand()
 
 Card Talon::dealCard()
 {
+    assert(!cards.empty());
     Card card = cards.back();
     cards.pop_back();
     return card;
@@ -40,11 +43,12 @@ Card Talon::dealCard()
 
 Card Talon::lastCard() const
 {
-    if (cards.empty()) return {-1, -1};
+    assert(!cards.empty());
     return cards.front();
 }
 
 void Talon::setLastCard(Card card)
 {
+    assert(!cards.empty());
     cards.front() = card;
 }

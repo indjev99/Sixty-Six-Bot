@@ -5,6 +5,8 @@
 
 struct PlayerMCTS : Player
 {
+    PlayerMCTS(int numPlayouts, int numDeterms=10);
+
     void startSet() override;
     void startGame() override;
 
@@ -21,6 +23,10 @@ struct PlayerMCTS : Player
 
 private:
 
+    int numPlayouts;
+    int numDeterms;
+
+    void setCardKnown(Card card);
     GameState determinize();
     int getAction();
 

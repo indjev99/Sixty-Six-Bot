@@ -5,6 +5,10 @@
 #include "rng.h"
 #include <algorithm>
 
+PlayerMCTS::PlayerMCTS(int numPlayouts, int numDeterms):
+    numPlayouts(numPlayouts),
+    numDeterms(numDeterms) {}
+
 void PlayerMCTS::startSet() {}
 
 void PlayerMCTS::startGame()
@@ -26,6 +30,12 @@ void PlayerMCTS::startGame()
             unseenCards.push_back({rank, suit});
         }
     }
+}
+
+void PlayerMCTS::setCardKnown(Card card)
+{
+    unseenCards.erase(std::remove(unseenCards.begin(), unseenCards.end(), card), unseenCards.end());
+    if (std::find(knownOppCards.begin(), knownOppCards.end(), card) == knownOppCards.end()) knownOppCards.push_back(card);
 }
 
 void PlayerMCTS::giveState(bool closed, int talonSize, Card trumpCard, int selfScore, int oppScore)
@@ -57,7 +67,7 @@ void PlayerMCTS::giveHand(const std::vector<Card>& hand)
 void PlayerMCTS::giveMove(Move move)
 {
     if (move.type == M_CLOSE) oppState.hasClosed = true;
-    else if (move.type == M_EXCHANGE) knownOppCards.push_back(lastTrumpCard);
+    else if (move.type == M_EXCHANGE) setCardKnown(lastTrumpCard);
     else if (move.type == M_PLAY)
     {
         lastMove = move;
@@ -70,9 +80,7 @@ void PlayerMCTS::giveMove(Move move)
             for (int rank : MARRIAGE_RANKS)
             {
                 if (rank == move.card.rank) continue;
-                Card card(rank, move.card.suit);
-                unseenCards.erase(std::remove(unseenCards.begin(), unseenCards.end(), card), unseenCards.end());
-                knownOppCards.push_back(card);
+                setCardKnown(Card(rank, move.card.suit));
             }
         }
     }
@@ -85,7 +93,7 @@ void PlayerMCTS::giveResponse(Card card)
     if (leadWinsTrick(trumpSuit, lastMove.card, card))
     {
         selfState.hasTakenTricks = true;
-        if (talonSize == 2) knownOppCards.push_back(lastTrumpCard);
+        if (talonSize == 2) setCardKnown(lastTrumpCard);
     }
     else oppState.hasTakenTricks = true;
 
@@ -123,7 +131,7 @@ int PlayerMCTS::getResponse(const std::vector<int>& valid)
     else
     {
         selfState.hasTakenTricks = true;
-        if (talonSize == 2) knownOppCards.push_back(lastTrumpCard);
+        if (talonSize == 2) setCardKnown(lastTrumpCard);
     }
 
     ++trickNumber;
@@ -131,12 +139,6 @@ int PlayerMCTS::getResponse(const std::vector<int>& valid)
 
     return response;
 }
-
-// TODO: remove
-#include "printing.h"
-#include <iostream>
-
-bool toPrintDet;
 
 GameState PlayerMCTS::determinize()
 {
@@ -158,38 +160,22 @@ GameState PlayerMCTS::determinize()
         talon.pop_back();
     }
 
-    if (toPrintDet)
-    {
-        std::cerr << "Opponent hand:";
-        std::sort(oppState.hand.begin(), oppState.hand.end());
-        for (Card card : oppState.hand) { std::cerr << " "; printCard(card); }
-        std::cerr << std::endl;
-
-        std::cerr << "Talon:";
-        for (Card card : talon) { std::cerr << " "; printCard(card); }
-        std::cerr << std::endl;
-    }
-
     if (lastMove.type == M_NONE) return GameState(trumpSuit, trickNumber, closed, lastMove, selfState, oppState, talon);
     else return GameState(trumpSuit, trickNumber, closed, lastMove, oppState, selfState, talon);
 }
 
-static const int NUM_DETERS = 5;
-static const int NUM_ITERS = 10000;
-
 int PlayerMCTS::getAction()
 {
-    // toPrintDet = true;
     MCTSNode node;
     std::vector<GameState> gameStates;
-    for (int i = 0; i < NUM_DETERS; ++ i)
+    for (int i = 0; i < numDeterms; ++ i)
     {
-        gameStates.push_back(determinize());
+        GameState gs = determinize();
+        gameStates.push_back(gs);
     }
-    // toPrintDet = false;
-    for (int i = 0; i < NUM_ITERS; ++i)
+    for (int i = 0; i < numPlayouts; ++i)
     {
-        node.explore(gameStates[randInt(0, NUM_DETERS)]);
+        node.explore(gameStates[randInt(0, numDeterms)]);
     }
     return node.choseAction(gameStates.front());
 }

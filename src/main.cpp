@@ -21,6 +21,11 @@ std::pair<double, double> benchmark(int (play)(Player*, Player*), Player* leadPl
         else res = play(leadPlayer, respPlayer);
         total += res;
         totalSq += res * res;
+
+        double mean = (double) total / (i + 1);
+        double meanSq = (double) totalSq / (i + 1);
+        double std = sqrt((meanSq - mean * mean) / (i + 1));
+        std::cout << i + 1 << ". " << mean << " +- " << std << std::endl;
     }
     double mean = (double) total / trials;
     double meanSq = (double) totalSq / trials;
@@ -28,36 +33,70 @@ std::pair<double, double> benchmark(int (play)(Player*, Player*), Player* leadPl
     return {mean, std};
 }
 
+PlayerUI playerHuman;
+
+PlayerRandom playerRandom;
+PlayerSimple playerSimple;
+PlayerMCTS playerMCTSLight(625);
+PlayerMCTS playerMCTSMid(2500);
+PlayerMCTS playerMCTSHeavy(10000);
+
+PlayerRandom playerRandomClone;
+PlayerSimple playerSimpleClone;
+PlayerMCTS playerMCTSLightClone(625);
+PlayerMCTS playerMCTSMidClone(2500);
+PlayerMCTS playerMCTSHeavyClone(10000);
+
+std::vector<Player*> playerBots = {&playerRandom, &playerSimple, &playerMCTSLight, &playerMCTSMid, &playerMCTSHeavy};
+std::vector<Player*> playerBotClones = {&playerRandomClone, &playerSimpleClone, &playerMCTSLightClone, &playerMCTSMidClone, &playerMCTSHeavyClone};
+
+Player* choosePlayer(bool opponent)
+{
+    int idx = playerBots.size();
+    std::string word = opponent ? "opponent" : "PoV";
+    while (idx < 0 || idx >= (int) playerBots.size())
+    {
+        std::cout << "Choose " << word << " strength (0 - " << playerBots.size() - 1 << "): ";
+        std::cin >> idx;
+    }
+    if (opponent) return playerBots[idx];
+    else return playerBotClones[idx];
+}
+
 int main()
 {
     timeSeedRNG();
 
-    PlayerRandom playerRandom;
-    PlayerSimple playerSimple;
-    PlayerMCTS playerMCTS;
-    PlayerUI playerHuman;
-
-    PlayerSimple playerSimpleUnderlying;
-    PlayerUI playerSimpleObserved(&playerSimpleUnderlying);
-
-    PlayerMCTS playerMCTSUnderlying;
-    PlayerUI playerMCTSObserved(&playerMCTSUnderlying);
-
-    playSet(&playerMCTSObserved, &playerSimple);
-
     // std::pair<double, double> stats;
-    // stats = benchmark(playGame, &playerMCTS, &playerRandom, true, 100);
+    // stats = benchmark(playGame, &playerMCTSLight, &playerSimple, true, 500);
     // std::cout << "Result: " << stats.first << " +- " << stats.second << "." << std::endl;
 
     while (true)
     {
         std::string command;
         std::cout << std::endl;
-        std::cout << "Play, obeserve, settings or exit: ";
+        std::cout << "Play, obeserve, benchmark, settings or exit: ";
         std::cin >> command;
 
-        if (stringMatch(command, "Play")) playSet(&playerHuman, &playerSimple);
-        if (stringMatch(command, "Observe")) playSet(&playerSimpleObserved, &playerSimple);
+        if (stringMatch(command, "Play"))
+        {
+            playSet(&playerHuman, choosePlayer(true));
+        }
+        else if (stringMatch(command, "Observe"))
+        {
+            PlayerUI playerPoV(choosePlayer(false));
+            playSet(&playerPoV, choosePlayer(true));
+        }
+        else if (stringMatch(command, "Benchmark"))
+        {
+            int numTrials;
+            std::cout << "Number of trials: ";
+            std::cin >> numTrials;
+            Player* playerPoV = choosePlayer(false);
+            Player* playerOpponent = choosePlayer(true);
+            std::pair<double, double> stats = benchmark(playSet, playerPoV, playerOpponent, true, numTrials);
+            std::cout << "Result: " << stats.first << " +- " << stats.second << "." << std::endl;
+        }
         if (stringMatch(command, "Settings"))
         {
             std::cout << "Enable fancy printing (0/1)? ";
