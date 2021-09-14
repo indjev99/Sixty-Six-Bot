@@ -28,7 +28,7 @@ double MCTSNode::explore(GameState gameState)
         gameState.setPlayers(&playerRandom, &playerRandom);
         while (!gameState.isTerminal())
         {
-            gameState.applyPlayerAction(1);
+            gameState.applyPlayerAction();
         }
 
         int result = gameState.result();

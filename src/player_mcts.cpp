@@ -5,9 +5,10 @@
 #include "rng.h"
 #include <algorithm>
 
-PlayerMCTS::PlayerMCTS(int numPlayouts, int numDeterms):
+PlayerMCTS::PlayerMCTS(int numPlayouts, int numDeterms, bool countCards):
     numPlayouts(numPlayouts),
-    numDeterms(numDeterms) {}
+    numDeterms(numDeterms),
+    countCards(countCards) {}
 
 void PlayerMCTS::startSet() {}
 
@@ -22,6 +23,7 @@ void PlayerMCTS::startGame()
 
     unseenCards.clear();
     knownOppCards.clear();
+    knownTalonCards.clear();
 
     for (int rank = 0; rank < NUM_RANKS; ++rank)
     {
@@ -32,7 +34,7 @@ void PlayerMCTS::startGame()
     }
 }
 
-void PlayerMCTS::setCardKnown(Card card)
+void PlayerMCTS::setCardKnownOpp(Card card)
 {
     unseenCards.erase(std::remove(unseenCards.begin(), unseenCards.end(), card), unseenCards.end());
     if (std::find(knownOppCards.begin(), knownOppCards.end(), card) == knownOppCards.end()) knownOppCards.push_back(card);
@@ -76,7 +78,7 @@ void PlayerMCTS::giveMove(Move move, bool self)
 
     if (self) return;
 
-    if (move.type == M_EXCHANGE) setCardKnown(lastTrumpCard);
+    if (move.type == M_EXCHANGE) setCardKnownOpp(lastTrumpCard);
     else if (move.type == M_PLAY)
     {
         unseenCards.erase(std::remove(unseenCards.begin(), unseenCards.end(), move.card), unseenCards.end());
@@ -86,13 +88,11 @@ void PlayerMCTS::giveMove(Move move, bool self)
             for (int rank : MARRIAGE_RANKS)
             {
                 if (rank == move.card.rank) continue;
-                setCardKnown(Card(rank, move.card.suit));
+                setCardKnownOpp(Card(rank, move.card.suit));
             }
         }
     }
 }
-
-// TODO: deduce info from responses after closing
 
 void PlayerMCTS::giveResponse(Card card, bool self)
 {
@@ -102,7 +102,7 @@ void PlayerMCTS::giveResponse(Card card, bool self)
     if (leadWinsTrick(trumpSuit, lastMove.card, card)) leadState.hasTakenTricks = true;
     else respState.hasTakenTricks = true;
 
-    if (!closed && talonSize == 2 && leadWinsTrick(trumpSuit, lastMove.card, card) != self) setCardKnown(lastTrumpCard);
+    if (!closed && talonSize == 2 && leadWinsTrick(trumpSuit, lastMove.card, card) != self) setCardKnownOpp(lastTrumpCard);
 
     ++trickNumber;
     lastMove.type = M_NONE;
@@ -111,6 +111,25 @@ void PlayerMCTS::giveResponse(Card card, bool self)
 
     unseenCards.erase(std::remove(unseenCards.begin(), unseenCards.end(), card), unseenCards.end());
     knownOppCards.erase(std::remove(knownOppCards.begin(), knownOppCards.end(), card), knownOppCards.end());
+
+    if (!closed) return;
+
+    bool noRaises = card.suit == lastMove.card.suit && card.rank < lastMove.card.rank;
+    bool noSuited = card.suit != lastMove.card.suit;
+    bool noTrumps = card.suit != lastMove.card.suit && card.suit != trumpSuit;
+
+    for (auto it = unseenCards.begin(); it != unseenCards.end();)
+    {
+        Card curr = *it;
+        if ((noRaises && curr.suit == lastMove.card.suit && curr.rank > lastMove.card.rank) ||
+            (noSuited && curr.suit == lastMove.card.suit) ||
+            (noTrumps && curr.suit == trumpSuit))
+        {
+            knownTalonCards.push_back(curr);
+            it = unseenCards.erase(it);
+        }
+        else ++it;
+    }
 }
 
 void PlayerMCTS::giveGameResult(int newPoints, int selfPoints, int oppPoints) {}
@@ -128,25 +147,59 @@ int PlayerMCTS::getResponse(const std::vector<int>& valid)
     return response;
 }
 
+#include <assert.h>
+
 GameState PlayerMCTS::determinize()
 {
-    int numOppCards = hand.size() - (lastMove.type != M_NONE);
+    int oppHandSize = hand.size() - (lastMove.type != M_NONE);
 
-    oppState.hand = knownOppCards;
-    std::vector<Card> talon = unseenCards;
+    std::vector<Card> talon;
 
-    if (talonSize > 0)
+    if (countCards)
     {
-        talon.insert(talon.begin(), lastTrumpCard);
-        std::shuffle(talon.begin() + 1, talon.end(), RNG);
-    }
-    else std::shuffle(talon.begin(), talon.end(), RNG);
+        oppState.hand = knownOppCards;
+        talon = unseenCards;
 
-    while ((int) oppState.hand.size() < numOppCards)
-    {
-        oppState.hand.push_back(talon.back());
-        talon.pop_back();
+        if (talonSize > 0)
+        {
+            talon.insert(talon.begin(), lastTrumpCard);
+            std::shuffle(talon.begin() + 1, talon.end(), RNG);
+        }
+        else std::shuffle(talon.begin(), talon.end(), RNG);
+
+        int numMissing = oppHandSize - oppState.hand.size();
+        oppState.hand.insert(oppState.hand.end(), talon.end() - numMissing, talon.end());
+        talon.erase(talon.end() - numMissing, talon.end());
+
+        talon.insert(talon.end(), knownTalonCards.begin(), knownTalonCards.end());
+        if (talonSize > 0) std::shuffle(talon.begin() + 1, talon.end(), RNG);
+        else std::shuffle(talon.begin(), talon.end(), RNG);
     }
+    else
+    {
+        for (int code = 0; code < NUM_RANKS * NUM_SUITS; ++code)
+        {
+            talon.push_back(Card(code));
+        }
+
+        for (Card card : hand)
+        {
+            talon.erase(std::remove(talon.begin(), talon.end(), card), talon.end());
+        }
+
+        std::shuffle(talon.begin(), talon.end(), RNG);
+
+        oppState.hand.clear();
+        oppState.hand.insert(oppState.hand.end(), talon.end() - oppHandSize, talon.end());
+
+        assert((int) talon.size() >= talonSize);
+
+        talon.resize(talonSize);
+    }
+
+
+    assert((int) oppState.hand.size() == oppHandSize);
+    assert((int) talon.size() == talonSize);
 
     if (lastMove.type == M_NONE) return GameState(trumpSuit, trickNumber, closed, lastMove, selfState, oppState, talon);
     else return GameState(trumpSuit, trickNumber, closed, lastMove, oppState, selfState, talon);

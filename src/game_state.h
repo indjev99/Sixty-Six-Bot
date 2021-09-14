@@ -35,7 +35,7 @@ struct GameState
     bool isTerminal();
     int result();
 
-    void applyPlayerAction(int attempts);
+    void applyPlayerAction(int attempts = 1);
     int actionCode(int idx);
 
 private:

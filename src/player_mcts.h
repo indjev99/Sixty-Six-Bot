@@ -5,7 +5,7 @@
 
 struct PlayerMCTS : Player
 {
-    PlayerMCTS(int numPlayouts, int numDeterms=10);
+    PlayerMCTS(int numPlayouts, int numDeterms = 10, bool countCards = true);
 
     void startSet() override;
     void startGame() override;
@@ -26,7 +26,9 @@ private:
     int numPlayouts;
     int numDeterms;
 
-    void setCardKnown(Card card);
+    bool countCards;
+
+    void setCardKnownOpp(Card card);
     GameState determinize();
     int getAction();
 
@@ -43,4 +45,5 @@ private:
     Card lastTrumpCard;
     std::vector<Card> unseenCards;
     std::vector<Card> knownOppCards;
+    std::vector<Card> knownTalonCards;
 };

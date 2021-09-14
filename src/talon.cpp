@@ -6,12 +6,9 @@
 
 Talon::Talon()
 {
-    for (int rank = 0; rank < NUM_RANKS; ++rank)
+    for (int code = 0; code < NUM_RANKS * NUM_SUITS; ++code)
     {
-        for (int suit = 0; suit < NUM_SUITS; ++suit)
-        {
-            cards.push_back({rank, suit});
-        }
+        cards.push_back(Card(code));
     }
 
     std::shuffle(cards.begin(), cards.end(), RNG);

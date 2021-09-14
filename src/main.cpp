@@ -36,19 +36,26 @@ std::pair<double, double> benchmark(int (play)(Player*, Player*), Player* leadPl
 PlayerUI playerHuman;
 
 PlayerRandom playerRandom;
+PlayerMCTS playerMCTSDumb(300, 2, false);
 PlayerSimple playerSimple;
-PlayerMCTS playerMCTSLight(625);
+PlayerMCTS playerMCTSLight(600);
 PlayerMCTS playerMCTSMid(5000);
 PlayerMCTS playerMCTSHeavy(40000);
 
 PlayerRandom playerRandomClone;
+PlayerMCTS playerMCTSDumbClone(300, 2, false);
 PlayerSimple playerSimpleClone;
-PlayerMCTS playerMCTSLightClone(625);
+PlayerMCTS playerMCTSLightClone(600);
 PlayerMCTS playerMCTSMidClone(5000);
 PlayerMCTS playerMCTSHeavyClone(40000);
 
-std::vector<Player*> playerBots = {&playerRandom, &playerSimple, &playerMCTSLight, &playerMCTSMid, &playerMCTSHeavy};
-std::vector<Player*> playerBotClones = {&playerRandomClone, &playerSimpleClone, &playerMCTSLightClone, &playerMCTSMidClone, &playerMCTSHeavyClone};
+std::vector<Player*> playerBots = {
+    &playerRandom, &playerMCTSDumb, &playerSimple, &playerMCTSLight, &playerMCTSMid, &playerMCTSHeavy
+};
+
+std::vector<Player*> playerBotClones = {
+    &playerRandomClone, &playerMCTSDumbClone, &playerSimpleClone, &playerMCTSLightClone, &playerMCTSMidClone, &playerMCTSHeavyClone
+};
 
 Player* choosePlayer(bool opponent)
 {
@@ -68,7 +75,7 @@ int main()
     timeSeedRNG();
 
     // std::pair<double, double> stats;
-    // stats = benchmark(playGame, &playerMCTSHeavy, &playerSimple, true, 500);
+    // stats = benchmark(playGame, &playerMCTSDumb, &playerSimple, true, 1000);
     // std::cout << "Result: " << stats.first << " +- " << stats.second << "." << std::endl;
 
     while (true)
@@ -88,7 +95,10 @@ int main()
         else if (stringMatch(command, "Observe"))
         {
             PlayerUI playerPoV(choosePlayer(false));
-            playSet(&playerPoV, choosePlayer(true));
+            Player* playerLead = &playerPoV;
+            Player* playerResp = choosePlayer(true);
+            if (randInt(0, 2)) std::swap(playerLead, playerResp);
+            playSet(playerLead, playerResp);
         }
         else if (stringMatch(command, "Benchmark"))
         {
