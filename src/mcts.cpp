@@ -5,7 +5,7 @@
 #include <math.h>
 
 static const double INF = 1e6;
-static const double EXPLORATION = 2;
+static const double EXPLORATION = 5;
 
 MCTSNode::MCTSNode():
     visits(0),
@@ -17,6 +17,10 @@ double MCTSNode::priority(int mult)
     if (visits == 0) return INF;
     return mult * totalReward / visits + EXPLORATION * sqrt(log(avaliable) / visits);
 }
+
+// TODO: remove
+#include "printing.h"
+#include <iostream>
 
 double MCTSNode::explore(GameState gameState)
 {
@@ -30,19 +34,19 @@ double MCTSNode::explore(GameState gameState)
         return reward;
     }
 
-    if (visits == 1)
-    {
-        PlayerRandom playerRandom;
-        gameState.setPlayers(&playerRandom, &playerRandom);
-        double reward = 0;
-        while (!gameState.isTerminal())
-        {
-            gameState.applyPlayerAction(1);
-        }
-        reward = gameState.result();
-        totalReward += reward;
-        return reward;
-    }
+    // if (visits == 1)
+    // {
+    //     PlayerRandom playerRandom;
+    //     gameState.setPlayers(&playerRandom, &playerRandom);
+    //     double reward = 0;
+    //     while (!gameState.isTerminal())
+    //     {
+    //         gameState.applyPlayerAction(1);
+    //     }
+    //     reward = gameState.result();
+    //     totalReward += reward;
+    //     return reward;
+    // }
 
     int currPlayerMult = gameState.currentPlayer();
     std::vector<int> actions = gameState.validActions();
@@ -51,7 +55,7 @@ double MCTSNode::explore(GameState gameState)
     int numActions = actions.size();
     std::vector<int> actionCodes(numActions);
 
-    double maxPriority;
+    double maxPriority = 0;
     int actionIdx = numActions;
 
     for (int i = 0; i < numActions; ++i)
@@ -87,13 +91,20 @@ int MCTSNode::choseAction(GameState gameState)
 
     int numActions = actions.size();
 
-    double maxVisits;
+    double maxVisits = 0;
     int actionIdx = numActions;
 
     for (int i = 0; i < numActions; ++i)
     {
         int actionCode = gameState.actionCode(actions[i]);
         int childVisits = children[actionCode].visits;
+
+        std::cerr << " ";
+        if (actionCode == M_CLOSE) std::cerr << "Close";
+        else if (actionCode == M_EXCHANGE) std::cerr << "Exchange";
+        else printCard(Card(actionCode));
+        std::cerr << ": " << childVisits << " " << children[actionCode].totalReward / childVisits << std::endl;
+
         if (i == 0 || childVisits > maxVisits)
         {
             actionIdx = i;

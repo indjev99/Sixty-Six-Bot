@@ -5,8 +5,6 @@
 #include "rng.h"
 #include <algorithm>
 
-static const int NUM_ITERS = 10000;
-
 void PlayerMCTS::startSet() {}
 
 void PlayerMCTS::startGame()
@@ -16,7 +14,7 @@ void PlayerMCTS::startGame()
     lastMove.type = M_NONE;
 
     selfState = PlayerGameState(1, nullptr);
-    oppState = PlayerGameState(1, nullptr);
+    oppState = PlayerGameState(-1, nullptr);
 
     unseenCards.clear();
     knownOppCards.clear();
@@ -134,6 +132,12 @@ int PlayerMCTS::getResponse(const std::vector<int>& valid)
     return response;
 }
 
+// TODO: remove
+#include "printing.h"
+#include <iostream>
+
+bool toPrintDet;
+
 GameState PlayerMCTS::determinize()
 {
     int numOppCards = hand.size() - (lastMove.type != M_NONE);
@@ -154,17 +158,38 @@ GameState PlayerMCTS::determinize()
         talon.pop_back();
     }
 
-    return GameState(trumpSuit, trickNumber, closed, lastMove, oppState, selfState, talon);
+    if (toPrintDet)
+    {
+        std::cerr << "Opponent hand:";
+        std::sort(oppState.hand.begin(), oppState.hand.end());
+        for (Card card : oppState.hand) { std::cerr << " "; printCard(card); }
+        std::cerr << std::endl;
+
+        std::cerr << "Talon:";
+        for (Card card : talon) { std::cerr << " "; printCard(card); }
+        std::cerr << std::endl;
+    }
+
+    if (lastMove.type == M_NONE) return GameState(trumpSuit, trickNumber, closed, lastMove, selfState, oppState, talon);
+    else return GameState(trumpSuit, trickNumber, closed, lastMove, oppState, selfState, talon);
 }
+
+static const int NUM_DETERS = 5;
+static const int NUM_ITERS = 10000;
 
 int PlayerMCTS::getAction()
 {
+    // toPrintDet = true;
     MCTSNode node;
+    std::vector<GameState> gameStates;
+    for (int i = 0; i < NUM_DETERS; ++ i)
+    {
+        gameStates.push_back(determinize());
+    }
+    // toPrintDet = false;
     for (int i = 0; i < NUM_ITERS; ++i)
     {
-        GameState gameState = determinize();
-        node.explore(gameState);
+        node.explore(gameStates[randInt(0, NUM_DETERS)]);
     }
-    GameState gameState = determinize();
-    return node.choseAction(gameState);
+    return node.choseAction(gameStates.front());
 }

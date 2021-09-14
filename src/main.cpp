@@ -43,7 +43,7 @@ int main()
     PlayerMCTS playerMCTSUnderlying;
     PlayerUI playerMCTSObserved(&playerMCTSUnderlying);
 
-    // playSet(&playerMCTSObserved, &playerSimple);
+    playSet(&playerMCTSObserved, &playerSimple);
 
     // std::pair<double, double> stats;
     // stats = benchmark(playGame, &playerMCTS, &playerRandom, true, 100);
