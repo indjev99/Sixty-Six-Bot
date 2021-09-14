@@ -2,6 +2,7 @@
 #include "play_game.h"
 #include "player_random.h"
 #include "player_simple.h"
+#include "player_mcts.h"
 #include "player_ui.h"
 #include "config.h"
 #include "util.h"
@@ -33,13 +34,19 @@ int main()
 
     PlayerRandom playerRandom;
     PlayerSimple playerSimple;
+    PlayerMCTS playerMCTS;
     PlayerUI playerHuman;
 
     PlayerSimple playerSimpleUnderlying;
     PlayerUI playerSimpleObserved(&playerSimpleUnderlying);
 
+    PlayerMCTS playerMCTSUnderlying;
+    PlayerUI playerMCTSObserved(&playerMCTSUnderlying);
+
+    // playSet(&playerMCTSObserved, &playerSimple);
+
     // std::pair<double, double> stats;
-    // stats = benchmark(playSet, &playerSimple, &playerRandom, true, 10000);
+    // stats = benchmark(playGame, &playerMCTS, &playerRandom, true, 100);
     // std::cout << "Result: " << stats.first << " +- " << stats.second << "." << std::endl;
 
     while (true)

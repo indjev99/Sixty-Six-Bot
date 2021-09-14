@@ -1,0 +1,40 @@
+#pragma once
+
+#include "player.h"
+#include "game_state.h"
+
+struct PlayerMCTS : Player
+{
+    void startSet() override;
+    void startGame() override;
+
+    void giveState(bool closed, int talonSize, Card trumpCard, int selfScore, int oppScore) override;
+    void giveHand(const std::vector<Card>& hand) override;
+    void giveMove(Move move) override;
+    void giveResponse(Card card) override;
+
+    void giveGameResult(int newPoints, int selfPoints, int oppPoints) override;
+    void giveSetResult(int result) override;
+
+    int getMove(const std::vector<int>& valid) override;
+    int getResponse(const std::vector<int>& valid) override;
+
+private:
+
+    GameState determinize();
+    int getAction();
+
+    int trumpSuit;
+    int trickNumber;
+    bool closed;
+    Move lastMove;
+    
+    PlayerGameState selfState, oppState;
+
+    std::vector<Card> hand;
+
+    int talonSize;
+    Card lastTrumpCard;
+    std::vector<Card> unseenCards;
+    std::vector<Card> knownOppCards;
+};
