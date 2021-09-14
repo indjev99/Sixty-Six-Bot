@@ -10,6 +10,9 @@
 #define C_YELLOW 6
 #define C_WHITE 7
 
+#include "card.h"
+
+void printCard(Card card);
 void setColor(int color);
 void resetColor();
 void moveUpOneLine();

@@ -1,4 +1,6 @@
 
+#pragma once
+
 #include "card.h"
 #include "talon.h"
 #include "player.h"
@@ -6,6 +8,7 @@
 
 struct PlayerGameState
 {
+    PlayerGameState();
     PlayerGameState(int mult, Player* player);
     PlayerGameState(int mult, int score, bool hasTakenTrick, bool hasClosed, const std::vector<Card>& hand);
 

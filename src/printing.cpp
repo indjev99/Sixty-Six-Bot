@@ -13,9 +13,19 @@
 #endif
 
 #include "printing.h"
+#include "config.h"
 #include <iostream>
 #include <string>
 #include <conio.h>
+
+static const int SUIT_COLORS[NUM_SUITS] = {C_BLUE, C_RED, C_GREEN, C_YELLOW};
+
+void printCard(Card card)
+{
+    if (FANCY_PRINTING) setColor(SUIT_COLORS[card.suit]);
+    std::cout << card.toString();
+    if (FANCY_PRINTING) resetColor();
+}
 
 static const std::string UNIX_COLOR_CODES[NUM_COLORS] = {
     "30",

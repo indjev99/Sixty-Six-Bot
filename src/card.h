@@ -27,6 +27,8 @@ struct Card
 
     int code() const;
     std::string toString() const;
+    void fancyPrint() const;
 };
 
+bool operator==(Card left, Card right);
 bool operator<(Card left, Card right);

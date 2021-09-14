@@ -5,19 +5,6 @@
 #include <algorithm>
 #include <iostream>
 
-static const int SUIT_COLORS[NUM_SUITS] = {C_BLUE, C_RED, C_GREEN, C_YELLOW};
-
-static void printCard(Card card)
-{
-    if (FANCY_PRINTING)
-    {
-        setColor(SUIT_COLORS[card.suit]);
-        std::cout << card.toString();
-        resetColor();
-    }
-    else std::cout << card.toString();
-}
-
 static std::string pointsWord(int points)
 {
     return points == 1 ? "point" : "points";

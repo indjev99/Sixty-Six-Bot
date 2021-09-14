@@ -23,6 +23,11 @@ std::string Card::toString() const
     return rankNames[rank] + suitNames[suit];
 }
 
+bool operator==(Card left, Card right)
+{
+    return left.suit == right.suit && left.rank == right.rank;
+}
+
 bool operator<(Card left, Card right)
 {
     if (left.suit != right.suit) return left.suit < right.suit;

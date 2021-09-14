@@ -5,6 +5,13 @@
 #include <algorithm>
 #include <numeric>
 
+PlayerGameState::PlayerGameState():
+    mult(0),
+    player(nullptr),
+    score(0),
+    hasTakenTricks(false),
+    hasClosed(false) {}
+
 PlayerGameState::PlayerGameState(int mult, Player* player):
     mult(mult),
     player(player),
