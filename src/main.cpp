@@ -27,6 +27,7 @@ std::pair<double, double> benchmark(int (play)(Player*, Player*), Player* leadPl
         double std = sqrt((meanSq - mean * mean) / (i + 1));
         std::cout << i + 1 << ". " << mean << " +- " << std << std::endl;
     }
+
     double mean = (double) total / trials;
     double meanSq = (double) totalSq / trials;
     double std = sqrt((meanSq - mean * mean) / trials);
@@ -37,14 +38,12 @@ PlayerUI playerHuman;
 
 PlayerRandom playerRandom;
 PlayerSimple playerSimple;
-
 PlayerMCTS playerMCTSLight(600);
 PlayerMCTS playerMCTSMid(5000);
 PlayerMCTS playerMCTSHeavy(40000);
 
 PlayerRandom playerRandomClone;
 PlayerSimple playerSimpleClone;
-
 PlayerMCTS playerMCTSLightClone(600);
 PlayerMCTS playerMCTSMidClone(5000);
 PlayerMCTS playerMCTSHeavyClone(40000);
@@ -74,9 +73,9 @@ int main()
 {
     timeSeedRNG();
 
-    // std::pair<double, double> stats;
-    // stats = benchmark(playGame, &playerMCTSLight, &playerSimpleClone, true, 1000);
-    // std::cout << "Result: " << stats.first << " +- " << stats.second << "." << std::endl;
+    std::pair<double, double> stats;
+    stats = benchmark(playSet, &playerMCTSLight, &playerSimpleClone, true, 1000);
+    std::cout << "Result: " << stats.first << " +- " << stats.second << "." << std::endl;
 
     while (true)
     {

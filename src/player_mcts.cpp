@@ -10,7 +10,11 @@ PlayerMCTS::PlayerMCTS(int numPlayouts, int numDeterms, bool countCards):
     numDeterms(numDeterms),
     countCards(countCards) {}
 
-void PlayerMCTS::startSet() {}
+void PlayerMCTS::startSet()
+{
+    selfPoints = 0;
+    oppPoints = 0;
+}
 
 void PlayerMCTS::startGame()
 {
@@ -132,7 +136,12 @@ void PlayerMCTS::giveResponse(Card card, bool self)
     }
 }
 
-void PlayerMCTS::giveGameResult(int newPoints, int selfPoints, int oppPoints) {}
+void PlayerMCTS::giveGameResult(int newPoints, int selfPoints, int oppPoints)
+{
+    this->selfPoints = selfPoints;
+    this->oppPoints = oppPoints;
+}
+
 void PlayerMCTS::giveSetResult(int result) {}
 
 int PlayerMCTS::getMove(const std::vector<int>& valid)
@@ -210,7 +219,7 @@ int PlayerMCTS::getAction()
 
     for (int i = 0; i < numPlayouts; ++i)
     {
-        node.explore(gameStates[randInt(0, numDeterms)]);
+        node.explore(gameStates[randInt(0, numDeterms)], selfPoints, oppPoints);
     }
 
     // node.debug(gameStates.front());

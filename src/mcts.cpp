@@ -1,11 +1,12 @@
 #include "mcts.h"
 #include "player_random.h"
+#include "config.h"
 #include "rng.h"
 #include <algorithm>
 #include <math.h>
 
 static const double INF = 1e6;
-static const double EXPLORATION = 4;
+static const double EXPLORATION = 3;
 
 MCTSNode::MCTSNode():
     visits(0),
@@ -18,7 +19,7 @@ double MCTSNode::priority(int mult)
     return mult * totalReward / visits + EXPLORATION * sqrt(log(avaliable) / visits);
 }
 
-double MCTSNode::explore(GameState gameState)
+double MCTSNode::explore(GameState gameState, int selfPoints, int oppPoints)
 {
     ++visits;
 
@@ -32,6 +33,9 @@ double MCTSNode::explore(GameState gameState)
         }
 
         int result = gameState.result();
+        result = std::min(result, POINT_TRESH - selfPoints);
+        result = std::max(result, oppPoints - POINT_TRESH);
+
         totalReward += result;
         return result;
     }
@@ -69,7 +73,7 @@ double MCTSNode::explore(GameState gameState)
 
     MCTSNode& child = children[actionCodes[actionIdx]];
 
-    double reward = child.explore(gameState);
+    double reward = child.explore(gameState, selfPoints, oppPoints);
     totalReward += reward;
 
     return reward;

@@ -32,6 +32,9 @@ private:
     GameState determinize();
     int getAction();
 
+    int selfPoints;
+    int oppPoints;
+
     int trumpSuit;
     int trickNumber;
     bool closed;

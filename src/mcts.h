@@ -7,7 +7,7 @@ struct MCTSNode
 {
     MCTSNode();
 
-    double explore(GameState gameState);
+    double explore(GameState gameState, int selfPoints, int oppPoints);
     int choseAction(GameState gameState);
 
     void debug(GameState gameState);
