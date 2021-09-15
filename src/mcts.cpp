@@ -19,7 +19,7 @@ double MCTSNode::priority(int mult)
     return mult * totalReward / visits + EXPLORATION * sqrt(log(avaliable) / visits);
 }
 
-double MCTSNode::explore(GameState gameState, int selfPoints, int oppPoints)
+double MCTSNode::explore(GameState gameState)
 {
     ++visits;
 
@@ -33,9 +33,6 @@ double MCTSNode::explore(GameState gameState, int selfPoints, int oppPoints)
         }
 
         int result = gameState.result();
-        result = std::min(result, POINT_TRESH - selfPoints);
-        result = std::max(result, oppPoints - POINT_TRESH);
-
         totalReward += result;
         return result;
     }
@@ -73,7 +70,7 @@ double MCTSNode::explore(GameState gameState, int selfPoints, int oppPoints)
 
     MCTSNode& child = children[actionCodes[actionIdx]];
 
-    double reward = child.explore(gameState, selfPoints, oppPoints);
+    double reward = child.explore(gameState);
     totalReward += reward;
 
     return reward;

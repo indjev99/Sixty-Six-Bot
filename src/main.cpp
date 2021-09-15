@@ -73,9 +73,9 @@ int main()
 {
     timeSeedRNG();
 
-    // std::pair<double, double> stats;
-    // stats = benchmark(playSet, &playerMCTSLight, &playerSimpleClone, true, 1000);
-    // std::cout << "Result: " << stats.first << " +- " << stats.second << "." << std::endl;
+    std::pair<double, double> stats;
+    stats = benchmark(playSet, &playerMCTSLight, &playerSimpleClone, true, 1000);
+    std::cout << "Result: " << stats.first << " +- " << stats.second << "." << std::endl;
 
     while (true)
     {
