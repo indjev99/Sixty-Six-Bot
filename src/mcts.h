@@ -10,6 +10,8 @@ struct MCTSNode
     double explore(GameState gameState);
     int choseAction(GameState gameState);
 
+    void debug(GameState gameState);
+
 private:
 
     double priority(int mult);

@@ -36,25 +36,25 @@ std::pair<double, double> benchmark(int (play)(Player*, Player*), Player* leadPl
 PlayerUI playerHuman;
 
 PlayerRandom playerRandom;
-PlayerMCTS playerMCTSDumb(300, 2, false);
 PlayerSimple playerSimple;
+
 PlayerMCTS playerMCTSLight(600);
 PlayerMCTS playerMCTSMid(5000);
 PlayerMCTS playerMCTSHeavy(40000);
 
 PlayerRandom playerRandomClone;
-PlayerMCTS playerMCTSDumbClone(300, 2, false);
 PlayerSimple playerSimpleClone;
+
 PlayerMCTS playerMCTSLightClone(600);
 PlayerMCTS playerMCTSMidClone(5000);
 PlayerMCTS playerMCTSHeavyClone(40000);
 
 std::vector<Player*> playerBots = {
-    &playerRandom, &playerMCTSDumb, &playerSimple, &playerMCTSLight, &playerMCTSMid, &playerMCTSHeavy
+    &playerRandomClone, &playerSimple, &playerMCTSLight, &playerMCTSMid, &playerMCTSHeavy
 };
 
 std::vector<Player*> playerBotClones = {
-    &playerRandomClone, &playerMCTSDumbClone, &playerSimpleClone, &playerMCTSLightClone, &playerMCTSMidClone, &playerMCTSHeavyClone
+    &playerRandomClone, &playerSimpleClone, &playerMCTSLightClone, &playerMCTSMidClone, &playerMCTSHeavyClone
 };
 
 Player* choosePlayer(bool opponent)
@@ -75,7 +75,7 @@ int main()
     timeSeedRNG();
 
     // std::pair<double, double> stats;
-    // stats = benchmark(playGame, &playerMCTSDumb, &playerSimple, true, 1000);
+    // stats = benchmark(playGame, &playerMCTSLight, &playerSimpleClone, true, 1000);
     // std::cout << "Result: " << stats.first << " +- " << stats.second << "." << std::endl;
 
     while (true)
@@ -87,27 +87,27 @@ int main()
 
         if (stringMatch(command, "Play"))
         {
-            Player* playerLead = &playerHuman;
-            Player* playerResp = choosePlayer(true);
-            if (randInt(0, 2)) std::swap(playerLead, playerResp);
-            playSet(playerLead, playerResp);
+            Player* leadPlayer = &playerHuman;
+            Player* respPlayer = choosePlayer(true);
+            if (randInt(0, 2)) std::swap(leadPlayer, respPlayer);
+            playSet(leadPlayer, respPlayer);
         }
         else if (stringMatch(command, "Observe"))
         {
-            PlayerUI playerPoV(choosePlayer(false));
-            Player* playerLead = &playerPoV;
-            Player* playerResp = choosePlayer(true);
-            if (randInt(0, 2)) std::swap(playerLead, playerResp);
-            playSet(playerLead, playerResp);
+            PlayerUI povPlayer(choosePlayer(false));
+            Player* leadPlayer = &povPlayer;
+            Player* respPlayer = choosePlayer(true);
+            if (randInt(0, 2)) std::swap(leadPlayer, respPlayer);
+            playSet(leadPlayer, respPlayer);
         }
         else if (stringMatch(command, "Benchmark"))
         {
             int numTrials;
             std::cout << "Number of trials: ";
             std::cin >> numTrials;
-            Player* playerPoV = choosePlayer(false);
-            Player* playerOpponent = choosePlayer(true);
-            std::pair<double, double> stats = benchmark(playSet, playerPoV, playerOpponent, true, numTrials);
+            Player* povPlayer = choosePlayer(false);
+            Player* oppPlayer = choosePlayer(true);
+            std::pair<double, double> stats = benchmark(playSet, povPlayer, oppPlayer, true, numTrials);
             std::cout << "Result: " << stats.first << " +- " << stats.second << "." << std::endl;
         }
         if (stringMatch(command, "Settings"))

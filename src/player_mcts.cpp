@@ -147,8 +147,6 @@ int PlayerMCTS::getResponse(const std::vector<int>& valid)
     return response;
 }
 
-#include <assert.h>
-
 GameState PlayerMCTS::determinize()
 {
     int oppHandSize = hand.size() - (lastMove.type != M_NONE);
@@ -192,14 +190,8 @@ GameState PlayerMCTS::determinize()
         oppState.hand.clear();
         oppState.hand.insert(oppState.hand.end(), talon.end() - oppHandSize, talon.end());
 
-        assert((int) talon.size() >= talonSize);
-
         talon.resize(talonSize);
     }
-
-
-    assert((int) oppState.hand.size() == oppHandSize);
-    assert((int) talon.size() == talonSize);
 
     if (lastMove.type == M_NONE) return GameState(trumpSuit, trickNumber, closed, lastMove, selfState, oppState, talon);
     else return GameState(trumpSuit, trickNumber, closed, lastMove, oppState, selfState, talon);
@@ -209,14 +201,19 @@ int PlayerMCTS::getAction()
 {
     MCTSNode node;
     std::vector<GameState> gameStates;
+
     for (int i = 0; i < numDeterms; ++ i)
     {
         GameState gs = determinize();
         gameStates.push_back(gs);
     }
+
     for (int i = 0; i < numPlayouts; ++i)
     {
         node.explore(gameStates[randInt(0, numDeterms)]);
     }
+
+    // node.debug(gameStates.front());
+
     return node.choseAction(gameStates.front());
 }

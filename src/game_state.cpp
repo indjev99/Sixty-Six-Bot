@@ -53,8 +53,6 @@ GameState::GameState(int trumpSuit, int trickNumber, bool closed, Move move, con
 
 void GameState::setPlayers(Player* leadPlayer, Player* respPlayer)
 {
-    if (leadState.mult < 0) std::swap(leadPlayer, respPlayer);
-
     leadState.player = leadPlayer;
     respState.player = respPlayer;
 }
