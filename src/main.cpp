@@ -46,7 +46,7 @@ PlayerRandom playerRandomClone;
 PlayerSimple playerSimpleClone;
 PlayerMCTS playerMCTSLightClone(600);
 PlayerMCTS playerMCTSMidClone(5000);
-PlayerMCTS playerMCTSHeavyClone(200000, 20);
+PlayerMCTS playerMCTSHeavyClone(40000);
 
 std::vector<Player*> playerBots = {
     &playerRandomClone, &playerSimple, &playerMCTSLight, &playerMCTSMid, &playerMCTSHeavy
@@ -74,7 +74,7 @@ int main()
     timeSeedRNG();
 
     // std::pair<double, double> stats;
-    // stats = benchmark(playGame, &playerMCTSLight, &playerSimple, true, 50000);
+    // stats = benchmark(playGame, &playerMCTSHeavy, &playerMCTSHeavyClone, true, 50000);
     // std::cout << "Result: " << stats.first << " +- " << stats.second << "." << std::endl;
 
     while (true)
