@@ -40,6 +40,8 @@ struct GameState
 
 private:
 
+    void updateMarriageSuits();
+
     int trumpSuit;
     int trickNumber;
     bool closed;
@@ -47,4 +49,6 @@ private:
     PlayerGameState leadState, respState;
     Talon talon;
     int noActionPlayer;
+
+    std::vector<bool> isMarriageSuit;
 };

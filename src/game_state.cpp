@@ -38,6 +38,8 @@ GameState::GameState(Player* leadPlayer, Player* respPlayer):
         leadState.player->startGame();
         respState.player->startGame();
     }
+
+    updateMarriageSuits();
 }
 
 GameState::GameState(int trumpSuit, int trickNumber, bool closed, Move move, const PlayerGameState& leadState,
@@ -49,7 +51,10 @@ GameState::GameState(int trumpSuit, int trickNumber, bool closed, Move move, con
     leadState(leadState),
     respState(respState),
     talon(talon),
-    noActionPlayer(0) {}
+    noActionPlayer(0)
+{
+    updateMarriageSuits();
+}
 
 void GameState::setPlayers(Player* leadPlayer, Player* respPlayer)
 {
@@ -61,6 +66,11 @@ int GameState::currentPlayer()
 {
     if (move.type == M_NONE) return leadState.mult;
     else return respState.mult;
+}
+
+void GameState::updateMarriageSuits()
+{
+    isMarriageSuit = findMarriageSuits(leadState.hand);
 }
 
 std::vector<int> GameState::validActions()
@@ -122,7 +132,6 @@ std::vector<int> GameState::validActions()
     }
 }
 
-
 void GameState::applyAction(int idx)
 {
     if (move.type == M_NONE)
@@ -132,7 +141,6 @@ void GameState::applyAction(int idx)
         {
             move.type = M_PLAY;
             move.card = leadState.hand[idx];
-            std::vector<bool> isMarriageSuit = findMarriageSuits(leadState.hand);
             if (trickNumber > 0 && isMarriageSuit[move.card.suit] && isMarriageCard(move.card.rank))
             {
                 move.score = move.card.suit == trumpSuit ? TRUMP_MARRIAGE_VALUE : REG_MARRIAGE_VALUE;
@@ -189,6 +197,8 @@ void GameState::applyAction(int idx)
         }
 
         if (!closed && leadState.hand.empty()) leadState.score += LAST_TRICK_VALUE;
+
+        updateMarriageSuits();
 
         move.type = M_NONE;
         ++trickNumber;
@@ -249,6 +259,12 @@ void GameState::applyPlayerAction(int attempts)
 int GameState::actionCode(int idx)
 {
     if (idx < 0) return idx;
-    if (move.type == M_NONE) return leadState.hand[idx].code();
+    if (move.type == M_NONE)
+    {
+        Card card = leadState.hand[idx];
+        if (trickNumber > 0 && isMarriageCard(card.rank) && isMarriageSuit[card.suit])
+            return card.code() + NUM_SUITS * NUM_RANKS;
+        return card.code();
+    }
     else return respState.hand[idx].code();
 }
