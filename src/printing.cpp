@@ -18,6 +18,8 @@
 #include <string>
 #include <conio.h>
 
+bool FANCY_PRINTING = true;
+
 static const int SUIT_COLORS[NUM_SUITS] = {C_BLUE, C_RED, C_GREEN, C_YELLOW};
 
 void printCard(Card card)
@@ -70,6 +72,8 @@ void resetColor()
 
 void moveUpOneLine()
 {
+    if (!FANCY_PRINTING) return;
+
     std::cout << UNIX_PREF + UNIX_ONEUP;
     clearLine(UNIX_WIDTH - 1);
 }
@@ -93,6 +97,8 @@ void resetColor()
 
 void moveUpOneLine()
 {
+    if (!FANCY_PRINTING) return;
+
     HANDLE hConsole = GetStdHandle(STD_OUTPUT_HANDLE);
 
     CONSOLE_SCREEN_BUFFER_INFO info;

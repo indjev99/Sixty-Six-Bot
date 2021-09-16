@@ -145,7 +145,7 @@ int PlayerUI::getMove(const std::vector<int>& valid)
         std::string moveStr;
         std::cout << "Select move: ";
         std::cin >> moveStr;
-        if (FANCY_PRINTING) moveUpOneLine();
+        moveUpOneLine();
 
         if (stringMatch(moveStr, "Close")) move = M_CLOSE;
         else if (stringMatch(moveStr, "Exchange")) move = M_EXCHANGE;
@@ -164,7 +164,7 @@ int PlayerUI::getResponse(const std::vector<int>& valid)
         std::cout << "Select response: ";
         std::cin >> responseStr;
         response = findCard(responseStr, hand);
-        if (FANCY_PRINTING) moveUpOneLine();
+        moveUpOneLine();
     }
     return response;
 }

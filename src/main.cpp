@@ -4,7 +4,7 @@
 #include "player_simple.h"
 #include "player_mcts.h"
 #include "player_ui.h"
-#include "config.h"
+#include "printing.h"
 #include "util.h"
 #include "rng.h"
 #include <math.h>
@@ -46,7 +46,7 @@ PlayerRandom playerRandomClone;
 PlayerSimple playerSimpleClone;
 PlayerMCTS playerMCTSLightClone(600);
 PlayerMCTS playerMCTSMidClone(5000);
-PlayerMCTS playerMCTSHeavyClone(40000);
+PlayerMCTS playerMCTSHeavyClone(200000, 20);
 
 std::vector<Player*> playerBots = {
     &playerRandomClone, &playerSimple, &playerMCTSLight, &playerMCTSMid, &playerMCTSHeavy
@@ -74,7 +74,7 @@ int main()
     timeSeedRNG();
 
     // std::pair<double, double> stats;
-    // stats = benchmark(playSet, &playerMCTSHeavy, &playerSimpleClone, true, 1000);
+    // stats = benchmark(playGame, &playerMCTSLight, &playerSimple, true, 50000);
     // std::cout << "Result: " << stats.first << " +- " << stats.second << "." << std::endl;
 
     while (true)

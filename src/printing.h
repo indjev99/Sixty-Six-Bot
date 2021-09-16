@@ -1,5 +1,7 @@
 #pragma once
 
+#include "card.h"
+
 #define NUM_COLORS 8
 #define C_BLACK 0
 #define C_BLUE 1
@@ -10,7 +12,7 @@
 #define C_YELLOW 6
 #define C_WHITE 7
 
-#include "card.h"
+extern bool FANCY_PRINTING;
 
 void printCard(Card card);
 void setColor(int color);
