@@ -5,9 +5,10 @@
 #include "rng.h"
 #include <algorithm>
 
-PlayerMCTS::PlayerMCTS(int numPlayouts, int numDeterms, bool countCards):
+PlayerMCTS::PlayerMCTS(int numPlayouts, int numDeterms, bool mergeDeterms, bool countCards):
     numPlayouts(numPlayouts),
     numDeterms(numDeterms),
+    mergeDeterms(mergeDeterms),
     countCards(countCards) {}
 
 void PlayerMCTS::startSet() {}
@@ -137,13 +138,13 @@ void PlayerMCTS::giveSetResult(int result) {}
 
 int PlayerMCTS::getMove(const std::vector<int>& valid)
 {
-    int move = getAction();
+    int move = getAction(valid);
     return move;
 }
 
 int PlayerMCTS::getResponse(const std::vector<int>& valid)
 {
-    int response = getAction();
+    int response = getAction(valid);
     return response;
 }
 
@@ -197,23 +198,52 @@ GameState PlayerMCTS::determinize()
     else return GameState(trumpSuit, trickNumber, closed, lastMove, oppState, selfState, talon);
 }
 
-int PlayerMCTS::getAction()
+int PlayerMCTS::getAction(const std::vector<int>& valid)
 {
-    MCTSNode node;
     std::vector<GameState> gameStates;
 
     for (int i = 0; i < numDeterms; ++ i)
     {
-        GameState gs = determinize();
-        gameStates.push_back(gs);
+        gameStates.push_back(determinize());
     }
 
-    for (int i = 0; i < numPlayouts; ++i)
+    int numActions = valid.size();
+    std::vector<int> actionScores(numActions, 0);
+
+    if (mergeDeterms)
     {
-        node.explore(gameStates[randInt(0, numDeterms)]);
+        MCTSNode node;
+        for (int j = 0; j < numPlayouts; ++j)
+        {
+            node.explore(gameStates[randInt(0, numDeterms)]);
+        }
+        actionScores = node.scoreActions(gameStates.front(), valid);
+
+        // node.debug(gameStates.front());
+    }
+    else
+    {
+        for (int i = 0; i < numDeterms; ++i)
+        {
+            MCTSNode node;
+            for (int j = 0; j < numPlayouts / numDeterms; ++j)
+            {
+                node.explore(gameStates[i]);
+            }
+            std::vector<int> currScores = node.scoreActions(gameStates.front(), valid);
+
+            for (int j = 0; j < numActions; ++j)
+            {
+                actionScores[j] += currScores[j];
+            }
+        }  
     }
 
-    // node.debug(gameStates.front());
 
-    return node.choseAction(gameStates.front());
+    int maxIdx = numActions;
+    for (int i = 0; i < numActions; ++i)
+    {
+        if (i == 0 || actionScores[i] > actionScores[maxIdx]) maxIdx = i;
+    }
+    return valid[maxIdx];
 }

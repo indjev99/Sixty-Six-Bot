@@ -75,12 +75,9 @@ int main()
 {
     timeSeedRNG();
 
-    // PlayerMixed playerMixedSimpleMCTS(2, &playerSimpleClone, &playerMCTSMidClone);
-    // PlayerMixed playerMixedMCTSSimple(5, &playerMCTSMidClone, &playerSimpleClone);
-
-    // std::pair<double, double> stats;
-    // stats = benchmark(playGame, &playerSimple, &playerMixedMCTSSimple, true, 50000);
-    // std::cout << "Result: " << stats.first << " +- " << stats.second << "." << std::endl;
+    std::pair<double, double> stats;
+    stats = benchmark(playGame, &playerMCTSLight, &playerMCTSLightClone, true, 50000);
+    std::cout << "Result: " << stats.first << " +- " << stats.second << "." << std::endl;
 
     while (true)
     {

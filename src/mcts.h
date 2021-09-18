@@ -8,7 +8,7 @@ struct MCTSNode
     MCTSNode();
 
     double explore(GameState gameState);
-    int choseAction(GameState gameState);
+    std::vector<int> scoreActions(GameState gameState, const std::vector<int>& actions);
 
     void debug(GameState gameState);
 

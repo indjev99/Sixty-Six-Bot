@@ -76,27 +76,14 @@ double MCTSNode::explore(GameState gameState)
     return reward;
 }
 
-int MCTSNode::choseAction(GameState gameState)
+std::vector<int> MCTSNode::scoreActions(GameState gameState, const std::vector<int>& actions)
 {
-    std::vector<int> actions = gameState.validActions();
-    std::shuffle(actions.begin(), actions.end(), RNG);
-
     int numActions = actions.size();
-
-    double maxVisits = 0;
-    int actionIdx = numActions;
-
+    std::vector<int> actionScores(numActions);
     for (int i = 0; i < numActions; ++i)
     {
         int actionCode = gameState.actionCode(actions[i]);
-        int childVisits = children[actionCode].visits;
-
-        if (i == 0 || childVisits > maxVisits)
-        {
-            actionIdx = i;
-            maxVisits = childVisits;
-        }
+        actionScores[i] = children[actionCode].visits;
     }
-
-    return actions[actionIdx];
+    return actionScores;
 }
