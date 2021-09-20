@@ -52,12 +52,12 @@ int PlayerSimple::getMove(const std::vector<int>& valid)
     if (std::find(valid.begin(), valid.end(), M_EXCHANGE) != valid.end()) return M_EXCHANGE;
 
     int targetMarriageSuit = -1;
-    std::vector<bool> marriageSuits = findMarriageSuits(hand);
+    std::vector<bool> isMarriageSuit = findMarriageSuits(hand);
     for (int i = 0; i < NUM_SUITS; ++i)
     {
-        if (marriageSuits[i]) targetMarriageSuit = i;
+        if (isMarriageSuit[i]) targetMarriageSuit = i;
     }
-    if (marriageSuits[trumpSuit]) targetMarriageSuit = trumpSuit;
+    if (isMarriageSuit[trumpSuit]) targetMarriageSuit = trumpSuit;
     if (trickNumber > 0 && targetMarriageSuit != -1)
     {
         for (int i = 0; i < (int) hand.size(); ++i)
@@ -99,12 +99,12 @@ int PlayerSimple::getMove(const std::vector<int>& valid)
 int PlayerSimple::getResponse(const std::vector<int>& valid)
 {
     std::vector<int> priorities(hand.size(), 0);
-    std::vector<bool> marriageSuits = findMarriageSuits(hand);
+    std::vector<bool> isMarriageSuit = findMarriageSuits(hand);
 
     for (int i : valid)
     {
         if (hand[i].suit == trumpSuit) priorities[i] -= KEEP_TRUMP_VALUE + hand[i].rank;
-        if (marriageSuits[hand[i].suit] && isMarriageCard(hand[i].rank)) priorities[i] -= hand[i].suit != trumpSuit ? REG_MARRIAGE_VALUE : TRUMP_MARRIAGE_VALUE;
+        if (isMarriageSuit[hand[i].suit] && isMarriageCard(hand[i].rank)) priorities[i] -= hand[i].suit != trumpSuit ? REG_MARRIAGE_VALUE : TRUMP_MARRIAGE_VALUE;
         if (!leadWinsTrick(trumpSuit, leadCard, hand[i])) priorities[i] += CARD_VALUES[leadCard.rank] + (hand[i].suit != trumpSuit) * CARD_VALUES[hand[i].rank];
         else priorities[i] -= CARD_VALUES[leadCard.rank] + CARD_VALUES[hand[i].rank];
     }
