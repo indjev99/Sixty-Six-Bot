@@ -3,9 +3,9 @@
 #include "player.h"
 #include "game_state.h"
 
-struct PlayerMCTS : Player
+struct PlayerISMCTS : Player
 {
-    PlayerMCTS(int numPlayouts, bool infSets = false, int numOppDeterms = 10, int numSelfRedeterms = 10);
+    PlayerISMCTS(int numPlayouts, bool mergeSelfRedeterms = true, bool mergeOppDeterms = true, int numSelfRedeterms = 0, int numOppDeterms = 10);
 
     void startSet() override;
     void startGame() override;
@@ -25,9 +25,11 @@ private:
 
     int numPlayouts;
 
-    bool infSets;
-    int numOppDeterms;
+    bool mergeSelfRedeterms;
+    bool mergeOppDeterms;
+
     int numSelfRedeterms;
+    int numOppDeterms;
 
     void setCardKnownOpp(Card card);
 

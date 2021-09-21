@@ -2,7 +2,7 @@
 #include "play_game.h"
 #include "player_random.h"
 #include "player_simple.h"
-#include "player_mcts.h"
+#include "player_ismcts.h"
 #include "player_ui.h"
 #include "printing.h"
 #include "util.h"
@@ -38,22 +38,22 @@ PlayerUI playerHuman;
 
 PlayerRandom playerRandom;
 PlayerSimple playerSimple;
-PlayerMCTS playerMCTSLight(600);
-PlayerMCTS playerMCTSMid(5000);
-PlayerMCTS playerMCTSHeavy(40000);
+PlayerISMCTS playerISMCTSLight(600);
+PlayerISMCTS playerISMCTSMid(5000);
+PlayerISMCTS playerISMCTSHeavy(40000);
 
 PlayerRandom playerRandomClone;
 PlayerSimple playerSimpleClone;
-PlayerMCTS playerMCTSLightClone(600);
-PlayerMCTS playerMCTSMidClone(5000);
-PlayerMCTS playerMCTSHeavyClone(40000);
+PlayerISMCTS playerISMCTSLightClone(600);
+PlayerISMCTS playerISMCTSMidClone(5000);
+PlayerISMCTS playerISMCTSHeavyClone(40000);
 
 std::vector<Player*> playerBots = {
-    &playerRandomClone, &playerSimple, &playerMCTSLight, &playerMCTSMid, &playerMCTSHeavy
+    &playerRandomClone, &playerSimple, &playerISMCTSLight, &playerISMCTSMid, &playerISMCTSHeavy
 };
 
 std::vector<Player*> playerBotClones = {
-    &playerRandomClone, &playerSimpleClone, &playerMCTSLightClone, &playerMCTSMidClone, &playerMCTSHeavyClone
+    &playerRandomClone, &playerSimpleClone, &playerISMCTSLightClone, &playerISMCTSMidClone, &playerISMCTSHeavyClone
 };
 
 Player* choosePlayer(bool opponent)
@@ -69,20 +69,18 @@ Player* choosePlayer(bool opponent)
     else return playerBotClones[idx];
 }
 
-// TODO: Fix crashes
-
 int main()
 {
     timeSeedRNG();
 
-    PlayerMCTS playerISMCTS(5000, true);
+    // PlayerISMCTS playerISMCTS(40000, false, false, 10, 10);
 
     // PlayerUI povPlayer(&playerISMCTS);
     // playSet(&povPlayer, &playerSimple);
 
-    std::pair<double, double> stats;
-    stats = benchmark(playGame, &playerISMCTS, &playerSimple, true, 50000);
-    std::cout << "Result: " << stats.first << " +- " << stats.second << "." << std::endl;
+    // std::pair<double, double> stats;
+    // stats = benchmark(playGame, &playerISMCTS, &playerSimple, true, 50000);
+    // std::cout << "Result: " << stats.first << " +- " << stats.second << "." << std::endl;
 
     while (true)
     {
