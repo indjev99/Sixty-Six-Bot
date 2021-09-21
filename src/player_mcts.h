@@ -5,7 +5,7 @@
 
 struct PlayerMCTS : Player
 {
-    PlayerMCTS(int numPlayouts, int numDeterms = 10, bool mergeDeterms = true, bool countCards = true);
+    PlayerMCTS(int numPlayouts, bool infSets = false, int numOppDeterms = 10, int numSelfRedeterms = 10);
 
     void startSet() override;
     void startGame() override;
@@ -24,13 +24,19 @@ struct PlayerMCTS : Player
 private:
 
     int numPlayouts;
-    int numDeterms;
-    bool mergeDeterms;
 
-    bool countCards;
+    bool infSets;
+    int numOppDeterms;
+    int numSelfRedeterms;
 
     void setCardKnownOpp(Card card);
-    GameState determinize();
+
+    void shuffleTalon();
+    void setSelfHand(const std::vector<Card>& selfHand);
+    GameState makeGameState();
+    void determinizeOpponent();
+    void redeterminizeSelf();
+
     int getAction(const std::vector<int>& valid);
 
     int trumpSuit;
@@ -39,6 +45,7 @@ private:
     Move lastMove;
     
     PlayerGameState selfState, oppState;
+    std::vector<Card> talon;
 
     std::vector<Card> hand;
 

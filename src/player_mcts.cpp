@@ -1,15 +1,16 @@
 #include "player_mcts.h"
 #include "mcts.h"
+#include "ismcts.h"
 #include "config.h"
 #include "util.h"
 #include "rng.h"
 #include <algorithm>
 
-PlayerMCTS::PlayerMCTS(int numPlayouts, int numDeterms, bool mergeDeterms, bool countCards):
+PlayerMCTS::PlayerMCTS(int numPlayouts, bool infSets, int numOppDeterms, int numSelfRedeterms):
     numPlayouts(numPlayouts),
-    numDeterms(numDeterms),
-    mergeDeterms(mergeDeterms),
-    countCards(countCards) {}
+    infSets(infSets),
+    numOppDeterms(numOppDeterms),
+    numSelfRedeterms(numSelfRedeterms) {}
 
 void PlayerMCTS::startSet() {}
 
@@ -59,7 +60,6 @@ void PlayerMCTS::giveState(bool closed, int talonSize, Card trumpCard, int selfS
 void PlayerMCTS::giveHand(const std::vector<Card>& hand)
 {
     this->hand = hand;
-    selfState.hand = hand;
 
     for (Card card : hand)
     {
@@ -148,76 +148,78 @@ int PlayerMCTS::getResponse(const std::vector<int>& valid)
     return response;
 }
 
-GameState PlayerMCTS::determinize()
+void PlayerMCTS::shuffleTalon()
 {
-    int oppHandSize = hand.size() - (lastMove.type != M_NONE);
+    if (talonSize > 0) std::shuffle(talon.begin() + 1, talon.end(), RNG);
+    else std::shuffle(talon.begin(), talon.end(), RNG);
+}
 
-    std::vector<Card> talon;
+void PlayerMCTS::setSelfHand(const std::vector<Card>& selfHand)
+{
+    selfState.hand = selfHand;
 
-    if (countCards)
+    talon = unseenCards;
+    if (talonSize > 0) talon.insert(talon.begin(), lastTrumpCard);
+    talon.insert(talon.end(), knownTalonCards.end(), knownTalonCards.begin());
+    talon.insert(talon.end(), hand.begin(), hand.end());
+
+    for (Card card : selfState.hand)
     {
-        oppState.hand = knownOppCards;
-        talon = unseenCards;
-
-        if (talonSize > 0)
-        {
-            talon.insert(talon.begin(), lastTrumpCard);
-            std::shuffle(talon.begin() + 1, talon.end(), RNG);
-        }
-        else std::shuffle(talon.begin(), talon.end(), RNG);
-
-        int numMissing = oppHandSize - oppState.hand.size();
-        oppState.hand.insert(oppState.hand.end(), talon.end() - numMissing, talon.end());
-        talon.erase(talon.end() - numMissing, talon.end());
-
-        talon.insert(talon.end(), knownTalonCards.begin(), knownTalonCards.end());
-        if (talonSize > 0) std::shuffle(talon.begin() + 1, talon.end(), RNG);
-        else std::shuffle(talon.begin(), talon.end(), RNG);
+        talon.erase(std::remove(talon.begin(), talon.end(), card), talon.end());
     }
-    else
+    for (Card card : oppState.hand)
     {
-        for (int code = 0; code < NUM_RANKS * NUM_SUITS; ++code)
-        {
-            talon.push_back(Card(code));
-        }
-
-        for (Card card : hand)
-        {
-            talon.erase(std::remove(talon.begin(), talon.end(), card), talon.end());
-        }
-
-        std::shuffle(talon.begin(), talon.end(), RNG);
-
-        oppState.hand.clear();
-        oppState.hand.insert(oppState.hand.end(), talon.end() - oppHandSize, talon.end());
-
-        talon.resize(talonSize);
+        talon.erase(std::remove(talon.begin(), talon.end(), card), talon.end());
     }
+    shuffleTalon();
 
+    talon.resize(talonSize);
+}
+
+GameState PlayerMCTS::makeGameState()
+{
     if (lastMove.type == M_NONE) return GameState(trumpSuit, trickNumber, closed, lastMove, selfState, oppState, talon);
     else return GameState(trumpSuit, trickNumber, closed, lastMove, oppState, selfState, talon);
 }
 
-#include "ismcts.h"
+void PlayerMCTS::determinizeOpponent()
+{
+    int oppHandSize = hand.size() - (lastMove.type != M_NONE);
+    oppState.hand = unseenCards;
+    std::shuffle(oppState.hand.begin(),  oppState.hand.end(), RNG);
+    oppState.hand.resize(oppHandSize - knownOppCards.size());
+    oppState.hand.insert(oppState.hand.end(), knownOppCards.begin(), knownOppCards.end());
+}
+
+void PlayerMCTS::redeterminizeSelf()
+{
+    // TODO: Improve by keeping track of opponent knowledge about self cards
+
+    selfState.hand = unseenCards;
+    selfState.hand.insert(selfState.hand.end(), hand.begin(), hand.end());
+    std::shuffle(selfState.hand.begin(), selfState.hand.end(), RNG);
+    selfState.hand.resize(hand.size());
+}
 
 int PlayerMCTS::getAction(const std::vector<int>& valid)
 {
-    std::vector<GameState> gameStates;
-
-    for (int i = 0; i < numDeterms; ++ i)
-    {
-        gameStates.push_back(determinize());
-    }
-
     int numActions = valid.size();
     std::vector<int> actionScores(numActions, 0);
 
-    if (mergeDeterms)
+    if (!infSets)
     {
+        std::vector<GameState> gameStates;
+        for (int i = 0; i < numOppDeterms; ++ i)
+        {
+            determinizeOpponent();
+            setSelfHand(hand);
+            gameStates.push_back(makeGameState());
+        }
+
         MCTSNode node;
         for (int j = 0; j < numPlayouts; ++j)
         {
-            node.explore(gameStates[randInt(0, numDeterms)]);
+            node.explore(gameStates[randInt(0, numOppDeterms)]);
         }
         actionScores = node.scoreActions(gameStates.front(), valid);
 
@@ -225,32 +227,61 @@ int PlayerMCTS::getAction(const std::vector<int>& valid)
     }
     else
     {
-        for (int i = 0; i < numDeterms; ++i)
-        {
-            MCTSNode node;
-            for (int j = 0; j < numPlayouts / numDeterms; ++j)
-            {
-                node.explore(gameStates[i]);
-            }
-            std::vector<int> currScores = node.scoreActions(gameStates.front(), valid);
+        int currNumOppDeterms = talonSize > 0 ? numOppDeterms : 1;
+        int currNumSelfRedeterms = talonSize > 0 ? numSelfRedeterms : 0;
 
-            for (int j = 0; j < numActions; ++j)
+        std::vector<std::vector<Card>> newSelfHands = {hand};
+        for (int j = 0; j < currNumSelfRedeterms; ++j)
+        {
+            redeterminizeSelf();
+            newSelfHands.push_back(selfState.hand);
+        }
+
+        std::vector<std::vector<GameState>> gameStates(currNumOppDeterms);
+        for (int i = 0; i < currNumOppDeterms; ++ i)
+        {
+            determinizeOpponent();
+            for (int j = 0; j < currNumSelfRedeterms + 1; ++j)
             {
-                actionScores[j] += currScores[j];
+                setSelfHand(newSelfHands[j]);
+                gameStates[i].push_back(makeGameState());
             }
-        }  
+        }
+
+        ISMCTSNode node(currNumSelfRedeterms + 1);
+        for (int j = 0; j < numPlayouts; ++j)
+        {
+            int oppDeterm = randInt(0, currNumOppDeterms);
+            int selfDeterm = randInt(0, currNumSelfRedeterms + 1);
+            node.explore(gameStates[oppDeterm][selfDeterm], selfDeterm, selfDeterm, oppDeterm, currNumSelfRedeterms + 1, currNumOppDeterms);
+        }
+        actionScores = node.scoreActions(gameStates.front().front(), valid, 0);
+
+        // node.debug(gameStates.front().front(), 0, 0, 0);
     }
 
+    // else
     // {
-    //     ISMCTSNode node(1);
-    //     for (int j = 0; j < numPlayouts; ++j)
+    //     std::vector<GameState> gameStates;
+    //     for (int i = 0; i < numDeterms; ++ i)
     //     {
-    //         int oppDeterm = randInt(0, numDeterms);
-    //         node.explore(gameStates[oppDeterm], 0, 0, oppDeterm, 1, numDeterms);
+    //         gameStates.push_back(determinize());
     //     }
-    //     actionScores = node.scoreActions(gameStates.front(), valid, 0);
 
-    //     // node.debug(gameStates.front(), 0, 0, 0);
+    //     for (int i = 0; i < numDeterms; ++i)
+    //     {
+    //         MCTSNode node;
+    //         for (int j = 0; j < numPlayouts / numDeterms; ++j)
+    //         {
+    //             node.explore(gameStates[i]);
+    //         }
+    //         std::vector<int> currScores = node.scoreActions(gameStates.front(), valid);
+
+    //         for (int j = 0; j < numActions; ++j)
+    //         {
+    //             actionScores[j] += currScores[j];
+    //         }
+    //     }
     // }
 
     int maxIdx = numActions;

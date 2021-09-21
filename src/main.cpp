@@ -69,15 +69,19 @@ Player* choosePlayer(bool opponent)
     else return playerBotClones[idx];
 }
 
+// TODO: Fix crashes
+
 int main()
 {
     timeSeedRNG();
 
-    // PlayerUI povPlayer(&playerMCTSHeavy);
+    PlayerMCTS playerISMCTS(5000, true);
+
+    // PlayerUI povPlayer(&playerISMCTS);
     // playSet(&povPlayer, &playerSimple);
-    
+
     std::pair<double, double> stats;
-    stats = benchmark(playGame, &playerMCTSLight, &playerSimple, true, 50000);
+    stats = benchmark(playGame, &playerISMCTS, &playerSimple, true, 50000);
     std::cout << "Result: " << stats.first << " +- " << stats.second << "." << std::endl;
 
     while (true)
