@@ -72,7 +72,6 @@ double MCTSNode::explore(GameState gameState)
 
     double reward = child.explore(gameState);
     totalReward += reward;
-
     return reward;
 }
 

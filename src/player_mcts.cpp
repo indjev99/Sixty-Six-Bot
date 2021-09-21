@@ -198,6 +198,8 @@ GameState PlayerMCTS::determinize()
     else return GameState(trumpSuit, trickNumber, closed, lastMove, oppState, selfState, talon);
 }
 
+#include "ismcts.h"
+
 int PlayerMCTS::getAction(const std::vector<int>& valid)
 {
     std::vector<GameState> gameStates;
@@ -239,6 +241,17 @@ int PlayerMCTS::getAction(const std::vector<int>& valid)
         }  
     }
 
+    // {
+    //     ISMCTSNode node(1);
+    //     for (int j = 0; j < numPlayouts; ++j)
+    //     {
+    //         int oppDeterm = randInt(0, numDeterms);
+    //         node.explore(gameStates[oppDeterm], 0, 0, oppDeterm, 1, numDeterms);
+    //     }
+    //     actionScores = node.scoreActions(gameStates.front(), valid, 0);
+
+    //     // node.debug(gameStates.front(), 0, 0, 0);
+    // }
 
     int maxIdx = numActions;
     for (int i = 0; i < numActions; ++i)

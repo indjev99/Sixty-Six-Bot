@@ -69,15 +69,16 @@ Player* choosePlayer(bool opponent)
     else return playerBotClones[idx];
 }
 
-#include "player_mixed.h"
-
 int main()
 {
     timeSeedRNG();
 
-    // std::pair<double, double> stats;
-    // stats = benchmark(playGame, &playerMCTSMid, &playerMCTSMidClone, true, 50000);
-    // std::cout << "Result: " << stats.first << " +- " << stats.second << "." << std::endl;
+    // PlayerUI povPlayer(&playerMCTSHeavy);
+    // playSet(&povPlayer, &playerSimple);
+    
+    std::pair<double, double> stats;
+    stats = benchmark(playGame, &playerMCTSLight, &playerSimple, true, 50000);
+    std::cout << "Result: " << stats.first << " +- " << stats.second << "." << std::endl;
 
     while (true)
     {
