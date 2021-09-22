@@ -39,14 +39,14 @@ PlayerUI playerHuman;
 PlayerRandom playerRandom;
 PlayerSimple playerSimple;
 PlayerMCTS playerMCTSLight(600, 10, 0);
-PlayerMCTS playerMCTSMid(5000, 10, 10);
-PlayerMCTS playerMCTSHeavy(40000, 100, 100);
+PlayerMCTS playerMCTSMid(5000, 10, 10, 0.5);
+PlayerMCTS playerMCTSHeavy(40000, 40, 40, 0.75);
 
 PlayerRandom playerRandomClone;
 PlayerSimple playerSimpleClone;
-PlayerMCTS playerMCTSLightClone(600, 0, 10);
-PlayerMCTS playerMCTSMidClone(5000, 10, 10);
-PlayerMCTS playerMCTSHeavyClone(40000, 100, 100);
+PlayerMCTS playerMCTSLightClone(600, 10, 0);
+PlayerMCTS playerMCTSMidClone(5000, 10, 10, 0.5);
+PlayerMCTS playerMCTSHeavyClone(40000, 40, 40, 0.75);
 
 std::vector<Player*> playerBots = {
     &playerRandom, &playerSimple, &playerMCTSLight, &playerMCTSMid, &playerMCTSHeavy
@@ -73,8 +73,10 @@ int main()
 {
     timeSeedRNG();
 
+    // PlayerMCTS playerMCTSTest(5000, 10, 10, 0.5, true);
+
     // std::pair<double, double> stats;
-    // stats = benchmark(playGame, &playerMCTSMid, &playerMCTSLight, true, 50000);
+    // stats = benchmark(playGame, &playerMCTSTest, &playerMCTSMid, true, 50000);
     // std::cout << "Result: " << stats.first << " +- " << stats.second << "." << std::endl;
 
     while (true)

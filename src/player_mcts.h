@@ -5,7 +5,7 @@
 
 struct PlayerMCTS : Player
 {
-    PlayerMCTS(int numPlayouts, int numOppDeterms, int numSelfRedeterms);
+    PlayerMCTS(int numPlayouts, int numOppDeterms, int numSelfRedeterms, double probRedeterm = 0.5, bool experimental = false);
 
     void startSet() override;
     void startGame() override;
@@ -27,6 +27,9 @@ private:
 
     int numOppDeterms;
     int numSelfRedeterms;
+    double probRedeterm;
+
+    bool experimental;
 
     void setCardKnownOpp(Card card);
 

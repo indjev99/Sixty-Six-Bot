@@ -5,10 +5,12 @@
 #include "rng.h"
 #include <algorithm>
 
-PlayerMCTS::PlayerMCTS(int numPlayouts, int numOppDeterms, int numSelfRedeterms):
+PlayerMCTS::PlayerMCTS(int numPlayouts, int numOppDeterms, int numSelfRedeterms, double probRedeterm, bool experimental):
     numPlayouts(numPlayouts),
     numOppDeterms(numOppDeterms),
-    numSelfRedeterms(numSelfRedeterms) {}
+    numSelfRedeterms(numSelfRedeterms),
+    probRedeterm(probRedeterm),
+    experimental(experimental) {}
 
 void PlayerMCTS::startSet() {}
 
@@ -235,7 +237,7 @@ int PlayerMCTS::getAction(const std::vector<int>& valid)
     MCTSNode node;
     for (int j = 0; j < numPlayouts; ++j)
     {
-        int selfDeterm = (currNumSelfRedeterms == 0 || randInt(0, 2) == 0) ? 0 : randInt(1, currNumSelfRedeterms + 1);
+        int selfDeterm = (currNumSelfRedeterms == 0 || randInt(0, 100) >= probRedeterm * 100) ? 0 : randInt(1, currNumSelfRedeterms + 1);
         int oppDeterm = randInt(0, currNumOppDeterms);
 
         bool selfRedetermed = selfDeterm > 0;
@@ -249,7 +251,7 @@ int PlayerMCTS::getAction(const std::vector<int>& valid)
     int maxIdx = numActions;
     for (int i = 0; i < numActions; ++i)
     {
-        if (i == 0 || actionScores[i] > actionScores[maxIdx]) maxIdx = i;
+        if (maxIdx == numActions || actionScores[i] > actionScores[maxIdx]) maxIdx = i;
     }
     return valid[maxIdx];
 }
