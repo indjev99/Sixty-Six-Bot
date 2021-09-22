@@ -172,6 +172,8 @@ void GameState::applyAction(int idx)
             leadState.hand[exchangeIdx] = talon.lastCard();
             talon.setLastCard(temp);
             move.type = M_NONE;
+
+            updateMarriageSuits();
         }
     }
     else
