@@ -38,15 +38,15 @@ PlayerUI playerHuman;
 
 PlayerRandom playerRandom;
 PlayerSimple playerSimple;
-PlayerISMCTS playerISMCTSLight(600);
-PlayerISMCTS playerISMCTSMid(5000);
-PlayerISMCTS playerISMCTSHeavy(40000);
+PlayerISMCTS playerISMCTSLight(600, true, true, 0, 10);
+PlayerISMCTS playerISMCTSMid(5000, true, true, 10, 10);
+PlayerISMCTS playerISMCTSHeavy(40000, false, false, 10, 10);
 
 PlayerRandom playerRandomClone;
 PlayerSimple playerSimpleClone;
-PlayerISMCTS playerISMCTSLightClone(600);
-PlayerISMCTS playerISMCTSMidClone(5000);
-PlayerISMCTS playerISMCTSHeavyClone(40000);
+PlayerISMCTS playerISMCTSLightClone(600, true, true, 0, 10);
+PlayerISMCTS playerISMCTSMidClone(5000, true, true, 10, 10);
+PlayerISMCTS playerISMCTSHeavyClone(40000, false, false, 10, 10);
 
 std::vector<Player*> playerBots = {
     &playerRandomClone, &playerSimple, &playerISMCTSLight, &playerISMCTSMid, &playerISMCTSHeavy
@@ -73,7 +73,7 @@ int main()
 {
     timeSeedRNG();
 
-    // PlayerISMCTS playerISMCTS(40000, false, false, 10, 10);
+    // PlayerISMCTS playerISMCTS(5000, true, true, 10, 10);
 
     // PlayerUI povPlayer(&playerISMCTS);
     // playSet(&povPlayer, &playerSimple);

@@ -47,7 +47,7 @@ double ISMCTSNode::explore(GameState gameState, int currDeterm, int selfDeterm, 
     int numActions = actions.size();
     std::vector<int> actionCodes(numActions);
 
-    double maxPriority = 0;
+    double maxPriority = -INF;
     int actionIdx = numActions;
 
     int nextDeterm = currPlayerMult > 0 ? selfDeterm : oppDeterm;

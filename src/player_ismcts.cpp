@@ -237,14 +237,14 @@ int PlayerISMCTS::getAction(const std::vector<int>& valid)
         int oppDeterm = randInt(0, currNumOppDeterms);
 
         int infSetSelfDeterm = mergeSelfRedeterms ? std::min(selfDeterm, 1) : selfDeterm;
-        int infSetOppDeterm = mergeOppDeterms ? 0 : infSetOppDeterm;
+        int infSetOppDeterm = mergeOppDeterms ? 0 : oppDeterm;
 
         node.explore(gameStates[oppDeterm][selfDeterm], infSetSelfDeterm, infSetSelfDeterm, infSetOppDeterm, infSetNumSelfRedeterms + 1, infSetNumOppDeterms);
     }
 
     actionScores = node.scoreActions(gameStates.front().front(), valid, 0);
 
-    // node.debug(gameStates.front().front(), 0, 0, 0);
+    // node.debug(gameStates[0][0], 0, 0, 0);
 
     int maxIdx = numActions;
     for (int i = 0; i < numActions; ++i)
