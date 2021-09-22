@@ -1,20 +1,18 @@
-#include "player_ismcts.h"
-#include "ismcts.h"
+#include "player_mcts.h"
+#include "mcts.h"
 #include "config.h"
 #include "util.h"
 #include "rng.h"
 #include <algorithm>
 
-PlayerISMCTS::PlayerISMCTS(int numPlayouts, bool mergeSelfRedeterms, bool mergeOppDeterms, int numSelfRedeterms, int numOppDeterms):
+PlayerMCTS::PlayerMCTS(int numPlayouts, int numOppDeterms, int numSelfRedeterms):
     numPlayouts(numPlayouts),
-    mergeSelfRedeterms(mergeSelfRedeterms),
-    mergeOppDeterms(mergeOppDeterms),
-    numSelfRedeterms(numSelfRedeterms),
-    numOppDeterms(numOppDeterms) {}
+    numOppDeterms(numOppDeterms),
+    numSelfRedeterms(numSelfRedeterms) {}
 
-void PlayerISMCTS::startSet() {}
+void PlayerMCTS::startSet() {}
 
-void PlayerISMCTS::startGame()
+void PlayerMCTS::startGame()
 {
     trickNumber = 0;
     closed = false;
@@ -36,13 +34,13 @@ void PlayerISMCTS::startGame()
     }
 }
 
-void PlayerISMCTS::setCardKnownOpp(Card card)
+void PlayerMCTS::setCardKnownOpp(Card card)
 {
     unseenCards.erase(std::remove(unseenCards.begin(), unseenCards.end(), card), unseenCards.end());
     if (std::find(knownOppCards.begin(), knownOppCards.end(), card) == knownOppCards.end()) knownOppCards.push_back(card);
 }
 
-void PlayerISMCTS::giveState(bool closed, int talonSize, Card trumpCard, int selfScore, int oppScore)
+void PlayerMCTS::giveState(bool closed, int talonSize, Card trumpCard, int selfScore, int oppScore)
 {
     if (trickNumber == 0) trumpSuit = trumpCard.suit;
     this->closed = closed;
@@ -57,7 +55,7 @@ void PlayerISMCTS::giveState(bool closed, int talonSize, Card trumpCard, int sel
     }
 }
 
-void PlayerISMCTS::giveHand(const std::vector<Card>& hand)
+void PlayerMCTS::giveHand(const std::vector<Card>& hand)
 {
     this->hand = hand;
 
@@ -67,7 +65,7 @@ void PlayerISMCTS::giveHand(const std::vector<Card>& hand)
     }
 }
 
-void PlayerISMCTS::giveMove(Move move, bool self)
+void PlayerMCTS::giveMove(Move move, bool self)
 {
     PlayerGameState& leadState = self ? selfState : oppState;
     if (move.type == M_CLOSE) leadState.hasClosed = true;
@@ -95,7 +93,7 @@ void PlayerISMCTS::giveMove(Move move, bool self)
     }
 }
 
-void PlayerISMCTS::giveResponse(Card card, bool self)
+void PlayerMCTS::giveResponse(Card card, bool self)
 {
     PlayerGameState& leadState = self ? oppState : selfState;
     PlayerGameState& respState = self ? selfState : oppState;
@@ -133,28 +131,28 @@ void PlayerISMCTS::giveResponse(Card card, bool self)
     }
 }
 
-void PlayerISMCTS::giveGameResult(int newPoints, int selfPoints, int oppPoints) {}
-void PlayerISMCTS::giveSetResult(int result) {}
+void PlayerMCTS::giveGameResult(int newPoints, int selfPoints, int oppPoints) {}
+void PlayerMCTS::giveSetResult(int result) {}
 
-int PlayerISMCTS::getMove(const std::vector<int>& valid)
+int PlayerMCTS::getMove(const std::vector<int>& valid)
 {
     int move = getAction(valid);
     return move;
 }
 
-int PlayerISMCTS::getResponse(const std::vector<int>& valid)
+int PlayerMCTS::getResponse(const std::vector<int>& valid)
 {
     int response = getAction(valid);
     return response;
 }
 
-void PlayerISMCTS::shuffleTalon()
+void PlayerMCTS::shuffleTalon()
 {
     if (talonSize > 0) std::shuffle(talon.begin() + 1, talon.end(), RNG);
     else std::shuffle(talon.begin(), talon.end(), RNG);
 }
 
-void PlayerISMCTS::setSelfHand(const std::vector<Card>& selfHand)
+void PlayerMCTS::setSelfHand(const std::vector<Card>& selfHand)
 {
     selfState.hand = selfHand;
 
@@ -176,13 +174,13 @@ void PlayerISMCTS::setSelfHand(const std::vector<Card>& selfHand)
     talon.resize(talonSize);
 }
 
-GameState PlayerISMCTS::makeGameState()
+GameState PlayerMCTS::makeGameState()
 {
     if (lastMove.type == M_NONE) return GameState(trumpSuit, trickNumber, closed, lastMove, selfState, oppState, talon);
     else return GameState(trumpSuit, trickNumber, closed, lastMove, oppState, selfState, talon);
 }
 
-void PlayerISMCTS::determinizeOpponent()
+void PlayerMCTS::determinizeOpponent()
 {
     int oppHandSize = hand.size() - (lastMove.type != M_NONE);
     oppState.hand = unseenCards;
@@ -191,17 +189,23 @@ void PlayerISMCTS::determinizeOpponent()
     oppState.hand.insert(oppState.hand.end(), knownOppCards.begin(), knownOppCards.end());
 }
 
-void PlayerISMCTS::redeterminizeSelf()
+void PlayerMCTS::redeterminizeSelf()
 {
     // TODO: Improve by keeping track of opponent knowledge about self cards
 
     selfState.hand = unseenCards;
     selfState.hand.insert(selfState.hand.end(), hand.begin(), hand.end());
+
+    for (Card card : oppState.hand)
+    {
+        talon.erase(std::remove(talon.begin(), talon.end(), card), talon.end());
+    }
+
     std::shuffle(selfState.hand.begin(), selfState.hand.end(), RNG);
     selfState.hand.resize(hand.size());
 }
 
-int PlayerISMCTS::getAction(const std::vector<int>& valid)
+int PlayerMCTS::getAction(const std::vector<int>& valid)
 {
     int numActions = valid.size();
     std::vector<int> actionScores(numActions, 0);
@@ -212,6 +216,7 @@ int PlayerISMCTS::getAction(const std::vector<int>& valid)
     std::vector<std::vector<Card>> newSelfHands = {hand};
     for (int j = 0; j < currNumSelfRedeterms; ++j)
     {
+        determinizeOpponent();
         redeterminizeSelf();
         newSelfHands.push_back(selfState.hand);
     }
@@ -227,22 +232,17 @@ int PlayerISMCTS::getAction(const std::vector<int>& valid)
         }
     }
 
-    int infSetNumSelfRedeterms = mergeSelfRedeterms ? std::min(currNumSelfRedeterms, 1) : currNumSelfRedeterms;
-    int infSetNumOppDeterms = mergeOppDeterms ? 1 : currNumOppDeterms;
-
-    ISMCTSNode node(infSetNumSelfRedeterms + 1);
+    MCTSNode node;
     for (int j = 0; j < numPlayouts; ++j)
     {
         int selfDeterm = (currNumSelfRedeterms == 0 || randInt(0, 2) == 0) ? 0 : randInt(1, currNumSelfRedeterms + 1);
         int oppDeterm = randInt(0, currNumOppDeterms);
 
-        int infSetSelfDeterm = mergeSelfRedeterms ? std::min(selfDeterm, 1) : selfDeterm;
-        int infSetOppDeterm = mergeOppDeterms ? 0 : oppDeterm;
-
-        node.explore(gameStates[oppDeterm][selfDeterm], infSetSelfDeterm, infSetSelfDeterm, infSetOppDeterm, infSetNumSelfRedeterms + 1, infSetNumOppDeterms);
+        bool selfRedetermed = selfDeterm > 0;
+        node.explore(gameStates[oppDeterm][selfDeterm], selfRedetermed, selfRedetermed);
     }
 
-    actionScores = node.scoreActions(gameStates.front().front(), valid, 0);
+    actionScores = node.scoreActions(gameStates.front().front(), valid);
 
     // node.debug(gameStates[0][0], 0, 0, 0);
 

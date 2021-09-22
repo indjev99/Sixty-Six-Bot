@@ -90,7 +90,7 @@ void PlayerUI::giveMove(Move move, bool self)
     else if (move.type == M_CLOSE) std::cout << doer << " closed the talon." << std::endl;
     else if (move.type == M_EXCHANGE) std::cout << doer << " exchanged the face up trump card." << std::endl;
 
-    if (move.type != M_PLAY && !self) waitForKeyPress();
+    if (move.type != M_PLAY && (!self || player)) waitForKeyPress();
 }
 
 void PlayerUI::giveResponse(Card card, bool self)

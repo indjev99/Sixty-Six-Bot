@@ -2,7 +2,7 @@
 #include "play_game.h"
 #include "player_random.h"
 #include "player_simple.h"
-#include "player_ismcts.h"
+#include "player_mcts.h"
 #include "player_ui.h"
 #include "printing.h"
 #include "util.h"
@@ -38,22 +38,22 @@ PlayerUI playerHuman;
 
 PlayerRandom playerRandom;
 PlayerSimple playerSimple;
-PlayerISMCTS playerISMCTSLight(600, true, true, 0, 10);
-PlayerISMCTS playerISMCTSMid(5000, true, true, 10, 10);
-PlayerISMCTS playerISMCTSHeavy(40000, false, false, 10, 10);
+PlayerMCTS playerMCTSLight(600, 10, 0);
+PlayerMCTS playerMCTSMid(5000, 10, 10);
+PlayerMCTS playerMCTSHeavy(40000, 100, 100);
 
 PlayerRandom playerRandomClone;
 PlayerSimple playerSimpleClone;
-PlayerISMCTS playerISMCTSLightClone(600, true, true, 0, 10);
-PlayerISMCTS playerISMCTSMidClone(5000, true, true, 10, 10);
-PlayerISMCTS playerISMCTSHeavyClone(40000, false, false, 10, 10);
+PlayerMCTS playerMCTSLightClone(600, 0, 10);
+PlayerMCTS playerMCTSMidClone(5000, 10, 10);
+PlayerMCTS playerMCTSHeavyClone(40000, 100, 100);
 
 std::vector<Player*> playerBots = {
-    &playerRandomClone, &playerSimple, &playerISMCTSLight, &playerISMCTSMid, &playerISMCTSHeavy
+    &playerRandom, &playerSimple, &playerMCTSLight, &playerMCTSMid, &playerMCTSHeavy
 };
 
 std::vector<Player*> playerBotClones = {
-    &playerRandomClone, &playerSimpleClone, &playerISMCTSLightClone, &playerISMCTSMidClone, &playerISMCTSHeavyClone
+    &playerRandomClone, &playerSimpleClone, &playerMCTSLightClone, &playerMCTSMidClone, &playerMCTSHeavyClone
 };
 
 Player* choosePlayer(bool opponent)
@@ -73,13 +73,8 @@ int main()
 {
     timeSeedRNG();
 
-    // PlayerISMCTS playerISMCTS(5000, true, true, 10, 10);
-
-    // PlayerUI povPlayer(&playerISMCTS);
-    // playSet(&povPlayer, &playerSimple);
-
     // std::pair<double, double> stats;
-    // stats = benchmark(playGame, &playerISMCTS, &playerSimple, true, 50000);
+    // stats = benchmark(playGame, &playerMCTSMid, &playerMCTSLight, true, 50000);
     // std::cout << "Result: " << stats.first << " +- " << stats.second << "." << std::endl;
 
     while (true)

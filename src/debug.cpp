@@ -1,4 +1,4 @@
-#include "ismcts.h"
+#include "mcts.h"
 #include "game_state.h"
 #include "printing.h"
 #include "util.h"
@@ -18,11 +18,11 @@ std::string actionString(int code)
     else return Card(code % (NUM_SUITS * NUM_RANKS)).toString();
 }
 
-void ISMCTSNode::debug(GameState gameState, int currDeterm, int selfDeterm, int oppDeterm)
+void MCTSNode::debug(GameState gameState, bool selfRedetermed, bool parentSR)
 {
     std::cout << std::endl;
 
-    if (visits[currDeterm] == 0) return;
+    if (visits[parentSR] == 0) return;
 
     std::vector<int> actions = gameState.validActions();
 
@@ -35,17 +35,17 @@ void ISMCTSNode::debug(GameState gameState, int currDeterm, int selfDeterm, int 
 
     std::cout << "Player: " << gameState.currentPlayer() << std::endl;
 
-    int nextDeterm = currPlayerMult > 0 ? selfDeterm : oppDeterm;
+    bool nextSR = currPlayerMult > 0 ? selfRedetermed : false;
 
     for (int i = 0; i < numActions; ++i)
     {
         int actionCode = gameState.actionCode(actions[i]);
-        int childVisits = children[actionCode].visits[nextDeterm];
+        int childVisits = children[actionCode].visits[nextSR];
 
         std::cout << " ";
         printAction(actionCode);
         std::cout << ": " << childVisits;
-        if (childVisits > 0) std::cout << " " << children[actionCode].totalReward[nextDeterm] / childVisits;
+        if (childVisits > 0) std::cout << " " << children[actionCode].totalReward[nextSR] / childVisits;
         std::cout << std::endl;
 
         if (i == 0 || childVisits > maxVisits)
@@ -86,5 +86,5 @@ void ISMCTSNode::debug(GameState gameState, int currDeterm, int selfDeterm, int 
     std::cout << std::endl;
 
     gameState.applyAction(actions[actionIdx]);
-    children[actionCode].debug(gameState, nextDeterm, selfDeterm, oppDeterm);
+    children[actionCode].debug(gameState, selfRedetermed, nextSR);
 }
