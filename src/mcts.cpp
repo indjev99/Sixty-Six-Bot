@@ -14,7 +14,7 @@ double MCTSNode::priority(int mult, bool parentSR)
     return mult * totalReward[parentSR] / visits[parentSR] + EXPLORATION * sqrt(log(avaliable[parentSR]) / visits[parentSR]);
 }
 
-double MCTSNode::explore(GameState gameState, bool selfRedetermed, bool parentSR)
+double MCTSNode::explore(GameState gameState, bool selfRedetermed, bool parentSR, bool experimental)
 {
     ++visits[parentSR];
 
@@ -55,7 +55,7 @@ double MCTSNode::explore(GameState gameState, bool selfRedetermed, bool parentSR
         }
         ++it->second.avaliable[nextSR];
 
-        double priority =  it->second.priority(currPlayerMult, nextSR);
+        double priority = it->second.priority(currPlayerMult, nextSR);
         if (i == 0 || priority > maxPriority)
         {
             actionIdx = i;
@@ -67,7 +67,7 @@ double MCTSNode::explore(GameState gameState, bool selfRedetermed, bool parentSR
 
     MCTSNode& child = children[actionCodes[actionIdx]];
 
-    double reward = child.explore(gameState, selfRedetermed, nextSR);
+    double reward = child.explore(gameState, selfRedetermed, nextSR, experimental);
     totalReward[parentSR] += reward;
     return reward;
 }

@@ -212,11 +212,11 @@ int PlayerMCTS::getAction(const std::vector<int>& valid)
     int numActions = valid.size();
     std::vector<int> actionScores(numActions, 0);
 
-    int currNumSelfRedeterms = talonSize > 0 ? numSelfRedeterms : 0;
+    bool noRedeterms = talonSize == 0 || numSelfRedeterms == 0;
     int currNumOppDeterms = talonSize > 0 ? numOppDeterms : 1;
 
     std::vector<std::vector<Card>> newSelfHands = {hand};
-    for (int j = 0; j < currNumSelfRedeterms; ++j)
+    for (int j = 0; j < numSelfRedeterms; ++j)
     {
         determinizeOpponent();
         redeterminizeSelf();
@@ -227,7 +227,7 @@ int PlayerMCTS::getAction(const std::vector<int>& valid)
     for (int i = 0; i < currNumOppDeterms; ++ i)
     {
         determinizeOpponent();
-        for (int j = 0; j < currNumSelfRedeterms + 1; ++j)
+        for (int j = 0; j < numSelfRedeterms + 1; ++j)
         {
             setSelfHand(newSelfHands[j]);
             gameStates[i].push_back(makeGameState());
@@ -237,16 +237,16 @@ int PlayerMCTS::getAction(const std::vector<int>& valid)
     MCTSNode node;
     for (int j = 0; j < numPlayouts; ++j)
     {
-        int selfDeterm = (currNumSelfRedeterms == 0 || randInt(0, 100) >= probRedeterm * 100) ? 0 : randInt(1, currNumSelfRedeterms + 1);
+        int selfDeterm = (noRedeterms || randInt(0, 100) >= probRedeterm * 100) ? 0 : randInt(1, numSelfRedeterms + 1);
         int oppDeterm = randInt(0, currNumOppDeterms);
 
         bool selfRedetermed = selfDeterm > 0;
-        node.explore(gameStates[oppDeterm][selfDeterm], selfRedetermed, selfRedetermed);
+        node.explore(gameStates[oppDeterm][selfDeterm], selfRedetermed, selfRedetermed, experimental);
     }
 
     actionScores = node.scoreActions(gameStates.front().front(), valid);
 
-    // node.debug(gameStates[0][0], 0, 0, 0);
+    // node.debug(gameStates[0][0], false, false);
 
     int maxIdx = numActions;
     for (int i = 0; i < numActions; ++i)

@@ -41,19 +41,21 @@ PlayerSimple playerSimple;
 PlayerMCTS playerMCTSLight(600, 10, 0);
 PlayerMCTS playerMCTSMid(5000, 10, 10, 0.5);
 PlayerMCTS playerMCTSHeavy(40000, 40, 40, 0.75);
+PlayerMCTS playerMCTSUltra(300000, 40, 40, 0.85);
 
 PlayerRandom playerRandomClone;
 PlayerSimple playerSimpleClone;
 PlayerMCTS playerMCTSLightClone(600, 10, 0);
 PlayerMCTS playerMCTSMidClone(5000, 10, 10, 0.5);
 PlayerMCTS playerMCTSHeavyClone(40000, 40, 40, 0.75);
+PlayerMCTS playerMCTSUltraClone(300000, 40, 40, 0.85);
 
 std::vector<Player*> playerBots = {
-    &playerRandom, &playerSimple, &playerMCTSLight, &playerMCTSMid, &playerMCTSHeavy
+    &playerRandom, &playerSimple, &playerMCTSLight, &playerMCTSMid, &playerMCTSHeavy, &playerMCTSUltra
 };
 
 std::vector<Player*> playerBotClones = {
-    &playerRandomClone, &playerSimpleClone, &playerMCTSLightClone, &playerMCTSMidClone, &playerMCTSHeavyClone
+    &playerRandomClone, &playerSimpleClone, &playerMCTSLightClone, &playerMCTSMidClone, &playerMCTSHeavyClone, &playerMCTSUltraClone
 };
 
 Player* choosePlayer(bool opponent)
@@ -73,10 +75,10 @@ int main()
 {
     timeSeedRNG();
 
-    // PlayerMCTS playerMCTSTest(5000, 10, 10, 0.5, true);
+    // PlayerMCTS playerMCTSTest(600, 10, 0, 0.5, true);
 
     // std::pair<double, double> stats;
-    // stats = benchmark(playGame, &playerMCTSTest, &playerMCTSMid, true, 50000);
+    // stats = benchmark(playGame, &playerMCTSTest, &playerMCTSLight, true, 50000);
     // std::cout << "Result: " << stats.first << " +- " << stats.second << "." << std::endl;
 
     while (true)
