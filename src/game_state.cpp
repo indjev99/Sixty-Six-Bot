@@ -66,8 +66,7 @@ GameState::GameState(Player* leadPlayer, Player* respPlayer):
     move(),
     leadState(1, leadPlayer),
     respState(-1, respPlayer),
-    talon(),
-    noActionPlayer(0)
+    talon()
 {
     trumpSuit = talon.lastCard().suit;
     leadState.setHand(talon.dealHand());
@@ -88,8 +87,7 @@ GameState::GameState(int trumpSuit, int trickNumber, bool closed, Move move, con
     move(move),
     leadState(leadState),
     respState(respState),
-    talon(talon),
-    noActionPlayer(0) {}
+    talon(talon) {}
 
 void GameState::reserveMem()
 {
@@ -101,8 +99,16 @@ void GameState::reserveMem()
 
 void GameState::setPlayers(Player* leadPlayer, Player* respPlayer)
 {
+    if (leadState.mult == -1) std::swap(leadPlayer, respPlayer);
+
     leadState.player = leadPlayer;
     respState.player = respPlayer;
+
+    if (leadState.player && respState.player)
+    {
+        leadState.player->startGame();
+        respState.player->startGame();
+    }
 }
 
 int GameState::currentPlayer()
@@ -225,8 +231,16 @@ void GameState::applyAction(int idx)
 
         if (!closed && talon.size() > 0)
         {
-            leadState.addCard(talon.dealCard());
-            respState.addCard(talon.dealCard());
+            if (talon.size() > 2 && leadState.mult == -1)
+            {
+                respState.addCard(talon.dealCard());
+                leadState.addCard(talon.dealCard());
+            }
+            else
+            {
+                leadState.addCard(talon.dealCard());
+                respState.addCard(talon.dealCard());
+            }
         }
 
         if (!closed && leadState.hand.empty()) leadState.score += LAST_TRICK_VALUE;
@@ -238,13 +252,11 @@ void GameState::applyAction(int idx)
 
 bool GameState::isTerminal()
 {
-    return leadState.score >= WIN_TRESH || respState.hand.empty() || noActionPlayer;
+    return leadState.score >= WIN_TRESH || respState.hand.empty();
 }
 
 int GameState::result()
 {
-    if (noActionPlayer) return noActionPlayer * -NOACTION_POINTS;
-
     if (leadState.player && respState.player)
     {
         Card lastCard;
@@ -267,24 +279,31 @@ int GameState::result()
     return points * leadState.mult;
 }
 
-void GameState::applyPlayerAction(int attempts)
+int GameState::playToTerminal(int attempts)
 {
-    int idx;
-    std::vector<int> valid = validActions();
-    do
+    while (!isTerminal())
     {
-        if (move.type == M_NONE) idx = leadState.player->getMove(valid);
-        else idx = respState.player->getResponse(valid);
-    }
-    while (attempts-- && std::find(valid.begin(), valid.end(), idx) == valid.end());
+        int currAttempts = attempts;
 
-    if (attempts < 0)
-    { 
-        noActionPlayer = (move.type == M_NONE ? leadState : respState).mult;
-        return;
+        int idx;
+        std::vector<int> valid = validActions();
+        do
+        {
+            if (move.type == M_NONE) idx = leadState.player->getMove(valid);
+            else idx = respState.player->getResponse(valid);
+        }
+        while (currAttempts-- && std::find(valid.begin(), valid.end(), idx) == valid.end());
+
+        if (currAttempts < 0)
+        { 
+            int noActionPlayer = (move.type == M_NONE ? leadState : respState).mult;
+            return noActionPlayer * -NOACTION_POINTS;
+        }
+
+        applyAction(idx);
     }
 
-    applyAction(idx);
+    return result();
 }
 
 int GameState::actionCode(int idx) const

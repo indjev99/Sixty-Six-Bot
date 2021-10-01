@@ -41,7 +41,7 @@ struct GameState
     bool isTerminal();
     int result();
 
-    void applyPlayerAction(int attempts = 1);
+    int playToTerminal(int attempts = 1);
     int actionCode(int idx) const;
 
     void reserveMem();
@@ -54,7 +54,6 @@ private:
     Move move;
     PlayerGameState leadState, respState;
     Talon talon;
-    int noActionPlayer;
 
     std::vector<int> tmpValid;
     std::vector<int> tmpSuitedRaises;

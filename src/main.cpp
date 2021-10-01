@@ -10,13 +10,14 @@
 #include <math.h>
 #include <iostream>
 
-std::pair<double, double> benchmark(int (play)(Player*, Player*), Player* leadPlayer, Player* respPlayer, bool alternate, int trials)
+template <typename T>
+std::pair<double, double> benchmark(T (play)(Player*, Player*), Player* leadPlayer, Player* respPlayer, bool alternate, int trials)
 {
-    int total = 0;
-    int totalSq = 0;
+    double total = 0;
+    double totalSq = 0;
     for (int i = 0; i < trials; ++i)
     {
-        int res;
+        double res;
         if (alternate && i % 2 == 1) res = -play(respPlayer, leadPlayer);
         else res = play(leadPlayer, respPlayer);
         total += res;
@@ -71,14 +72,28 @@ Player* choosePlayer(bool opponent)
     else return playerBotClones[idx];
 }
 
+double playGameHedged(Player* leadPlayer, Player* respPlayer)
+{
+    GameState gameState(leadPlayer, respPlayer);
+    GameState gameStateBase = gameState;
+
+    int res = gameState.playToTerminal(5);
+
+    gameStateBase.setPlayers(&playerMCTSLight, &playerMCTSLightClone);
+    int base = gameStateBase.playToTerminal(5);
+
+    return res - base * 0.5;
+    return res;
+}
+
 int main()
 {
     timeSeedRNG();
 
-    // PlayerMCTS playerMCTSTest(600, 10, 0, 0.5, true);
+    // PlayerMCTS playerMCTSTest(5000, 10, 10, 0.5, true);
 
     // std::pair<double, double> stats;
-    // stats = benchmark(playGame, &playerMCTSMid, &playerSimple, true, 50000);
+    // stats = benchmark(playGameHedged, &playerMCTSTest, &playerMCTSMid, true, 50000);
     // std::cout << "Result: " << stats.first << " +- " << stats.second << "." << std::endl;
 
     while (true)

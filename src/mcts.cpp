@@ -22,12 +22,7 @@ double MCTSNode::explore(GameState& gameState, bool selfRedetermed, bool parentS
     {
         PlayerRandom playerRandom;
         gameState.setPlayers(&playerRandom, &playerRandom);
-        while (!gameState.isTerminal())
-        {
-            gameState.applyPlayerAction();
-        }
-
-        int result = gameState.result();
+        int result = gameState.playToTerminal();;
         totalReward[parentSR] += result;
         return result;
     }
@@ -42,7 +37,7 @@ double MCTSNode::explore(GameState& gameState, bool selfRedetermed, bool parentS
     int bestAction = M_NONE;
     MCTSNode* bestChild = nullptr;
 
-    bool nextSR = currPlayerMult > 0 ? selfRedetermed : false;
+    bool nextSR = currPlayerMult == 1 ? selfRedetermed : false;
 
     for (int action : actions)
     {
