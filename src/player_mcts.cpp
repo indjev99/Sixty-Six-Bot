@@ -20,8 +20,8 @@ void PlayerMCTS::startGame()
     closed = false;
     lastMove.type = M_NONE;
 
-    selfState = PlayerGameState(1, nullptr);
-    oppState = PlayerGameState(-1, nullptr);
+    selfState = PlayerGameState(1);
+    oppState = PlayerGameState(-1);
 
     unseenCards.clear();
     knownOppCards.clear();
@@ -239,14 +239,16 @@ int PlayerMCTS::getAction(const std::vector<int>& valid)
     {
         int selfDeterm = (noRedeterms || randInt(0, 100) >= probRedeterm * 100) ? 0 : randInt(1, numSelfRedeterms + 1);
         int oppDeterm = randInt(0, currNumOppDeterms);
-
         bool selfRedetermed = selfDeterm > 0;
-        node.explore(gameStates[oppDeterm][selfDeterm], selfRedetermed, selfRedetermed, experimental);
+
+        GameState gsClone = gameStates[oppDeterm][selfDeterm];
+        node.explore(gsClone, selfRedetermed, selfRedetermed, experimental);
     }
 
     actionScores = node.scoreActions(gameStates.front().front(), valid);
 
-    // node.debug(gameStates[0][0], false, false);
+    // GameState gsClone = gameStates[0][0];
+    // node.debug(gsClone, false, false);
 
     int maxIdx = numActions;
     for (int i = 0; i < numActions; ++i)

@@ -46,7 +46,8 @@ private:
     bool closed;
     Move lastMove;
     
-    PlayerGameState selfState, oppState;
+    PlayerGameState selfState;
+    PlayerGameState oppState;
     std::vector<Card> talon;
 
     std::vector<Card> hand;

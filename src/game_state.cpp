@@ -4,14 +4,6 @@
 #include "util.h"
 #include <algorithm>
 #include <numeric>
-#include <assert.h>
-
-PlayerGameState::PlayerGameState():
-    mult(0),
-    player(nullptr),
-    score(0),
-    hasTakenTricks(false),
-    hasClosed(false) {}
 
 PlayerGameState::PlayerGameState(int mult, Player* player):
     mult(mult),
@@ -19,6 +11,19 @@ PlayerGameState::PlayerGameState(int mult, Player* player):
     score(0),
     hasTakenTricks(false),
     hasClosed(false) {}
+
+namespace std
+{
+    void swap(PlayerGameState& left, PlayerGameState& right)
+    {
+        std::swap(left.mult, right.mult);
+        std::swap(left.player, right.player);
+        std::swap(left.score, right.score);
+        std::swap(left.hasTakenTricks, right.hasTakenTricks);
+        std::swap(left.hasClosed, right.hasClosed);
+        std::swap(left.hand, right.hand);
+    }
+}
 
 GameState::GameState(Player* leadPlayer, Player* respPlayer):
     trickNumber(0),
@@ -258,7 +263,7 @@ void GameState::applyPlayerAction(int attempts)
     applyAction(idx);
 }
 
-int GameState::actionCode(int idx)
+int GameState::actionCode(int idx) const
 {
     if (idx < 0) return idx;
     if (move.type == M_NONE)

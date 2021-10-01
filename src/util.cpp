@@ -49,16 +49,16 @@ bool isMarriageCard(int rank)
 
 std::vector<bool> findMarriageSuits(const std::vector<Card>& hand)
 {
-    std::vector<int> marriageCounts(NUM_SUITS, 0);
+    std::vector<int> marriageCardCounts(NUM_SUITS, 0);
     for (int i = 0; i < (int) hand.size(); ++i)
     {
-        if (isMarriageCard(hand[i].rank)) ++marriageCounts[hand[i].suit];
+        if (isMarriageCard(hand[i].rank)) ++marriageCardCounts[hand[i].suit];
     }
 
     std::vector<bool> isMarriageSuit(NUM_SUITS);
     for (int i = 0; i < NUM_SUITS; ++i)
     {
-        isMarriageSuit[i] = marriageCounts[i] == (int) MARRIAGE_RANKS.size();
+        isMarriageSuit[i] = marriageCardCounts[i] == (int) MARRIAGE_RANKS.size();
     }
 
     return isMarriageSuit;

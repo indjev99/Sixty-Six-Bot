@@ -74,12 +74,13 @@ Player* choosePlayer(bool opponent)
 int main()
 {
     timeSeedRNG();
+    seedRNG(0);
 
     // PlayerMCTS playerMCTSTest(600, 10, 0, 0.5, true);
 
-    // std::pair<double, double> stats;
-    // stats = benchmark(playGame, &playerMCTSTest, &playerMCTSLight, true, 50000);
-    // std::cout << "Result: " << stats.first << " +- " << stats.second << "." << std::endl;
+    std::pair<double, double> stats;
+    stats = benchmark(playGame, &playerMCTSMid, &playerMCTSMidClone, true, 50000);
+    std::cout << "Result: " << stats.first << " +- " << stats.second << "." << std::endl;
 
     while (true)
     {
@@ -113,12 +114,12 @@ int main()
             std::pair<double, double> stats = benchmark(playSet, povPlayer, oppPlayer, true, numTrials);
             std::cout << "Result: " << stats.first << " +- " << stats.second << "." << std::endl;
         }
-        if (stringMatch(command, "Settings"))
+        else if (stringMatch(command, "Settings"))
         {
             std::cout << "Enable fancy printing (0/1)? ";
             std::cin >> FANCY_PRINTING;
         }
-        if (stringMatch(command, "Exit")) break;
+        else if (stringMatch(command, "Exit")) break;
     }
 
     return 0;

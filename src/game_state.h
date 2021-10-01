@@ -8,8 +8,7 @@
 
 struct PlayerGameState
 {
-    PlayerGameState();
-    PlayerGameState(int mult, Player* player);
+    PlayerGameState(int mult = 0, Player* player = nullptr);
 
     int mult;
     Player* player;
@@ -36,7 +35,7 @@ struct GameState
     int result();
 
     void applyPlayerAction(int attempts = 1);
-    int actionCode(int idx);
+    int actionCode(int idx) const;
 
 private:
 

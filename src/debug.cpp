@@ -18,7 +18,7 @@ std::string actionString(int code)
     else return Card(code % (NUM_SUITS * NUM_RANKS)).toString();
 }
 
-void MCTSNode::debug(GameState gameState, bool selfRedetermed, bool parentSR)
+void MCTSNode::debug(GameState& gameState, bool selfRedetermed, bool parentSR)
 {
     std::cout << std::endl;
 

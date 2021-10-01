@@ -14,7 +14,7 @@ double MCTSNode::priority(int mult, bool parentSR)
     return mult * totalReward[parentSR] / visits[parentSR] + EXPLORATION * sqrt(log(avaliable[parentSR]) / visits[parentSR]);
 }
 
-double MCTSNode::explore(GameState gameState, bool selfRedetermed, bool parentSR, bool experimental)
+double MCTSNode::explore(GameState& gameState, bool selfRedetermed, bool parentSR, bool experimental)
 {
     ++visits[parentSR];
 
@@ -64,7 +64,6 @@ double MCTSNode::explore(GameState gameState, bool selfRedetermed, bool parentSR
     }
 
     gameState.applyAction(actions[actionIdx]);
-
     MCTSNode& child = children[actionCodes[actionIdx]];
 
     double reward = child.explore(gameState, selfRedetermed, nextSR, experimental);
@@ -72,7 +71,7 @@ double MCTSNode::explore(GameState gameState, bool selfRedetermed, bool parentSR
     return reward;
 }
 
-std::vector<int> MCTSNode::scoreActions(GameState gameState, const std::vector<int>& actions)
+std::vector<int> MCTSNode::scoreActions(const GameState& gameState, const std::vector<int>& actions)
 {
     int numActions = actions.size();
     std::vector<int> actionScores(numActions);
