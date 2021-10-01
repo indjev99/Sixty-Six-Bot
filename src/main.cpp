@@ -74,12 +74,11 @@ Player* choosePlayer(bool opponent)
 int main()
 {
     timeSeedRNG();
-    seedRNG(1);
 
     // PlayerMCTS playerMCTSTest(600, 10, 0, 0.5, true);
 
     // std::pair<double, double> stats;
-    // stats = benchmark(playGame, &playerMCTSMid, &playerMCTSMidClone, true, 50000);
+    // stats = benchmark(playGame, &playerMCTSMid, &playerSimple, true, 50000);
     // std::cout << "Result: " << stats.first << " +- " << stats.second << "." << std::endl;
 
     while (true)

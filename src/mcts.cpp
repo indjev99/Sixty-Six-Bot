@@ -39,31 +39,33 @@ double MCTSNode::explore(GameState& gameState, bool selfRedetermed, bool parentS
     std::vector<int> actionCodes(numActions);
 
     double maxPriority = -INF;
-    int actionIdx = numActions;
+    int bestAction = M_NONE;
+    MCTSNode* bestChild = nullptr;
 
     bool nextSR = currPlayerMult > 0 ? selfRedetermed : false;
 
-    for (int i = 0; i < numActions; ++i)
+    for (int action : actions)
     {
-        actionCodes[i] = gameState.actionCode(actions[i]);
-        auto it = children.find(actionCodes[i]);
+        int actionCode = gameState.actionCode(action);
+        auto it = children.find(actionCode);
         if (it == children.end())
         {
-            auto res = children.insert({actionCodes[i], MCTSNode()});
+            auto res = children.insert({actionCode, MCTSNode()});
             it = res.first;
         }
         ++it->second.avaliable[nextSR];
 
         double priority = it->second.priority(currPlayerMult, nextSR);
-        if (i == 0 || priority > maxPriority)
+        if (priority > maxPriority)
         {
-            actionIdx = i;
             maxPriority = priority;
+            bestAction = action;
+            bestChild = &(it->second);
         }
     }
 
-    gameState.applyAction(actions[actionIdx]);
-    MCTSNode& child = children[actionCodes[actionIdx]];
+    MCTSNode& child = *bestChild;
+    gameState.applyAction(bestAction);
 
     double reward = child.explore(gameState, selfRedetermed, nextSR, experimental);
     totalReward[parentSR] += reward;
