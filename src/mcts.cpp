@@ -10,7 +10,7 @@ static const double EXPLORATION = 3;
 
 double MCTSNode::priority(int mult, bool parentSR)
 {
-    if (visits[parentSR] == 0) return INF;
+    if (visits[parentSR] == 0) return INF + randInt(0, INF);
     return mult * totalReward[parentSR] / visits[parentSR] + EXPLORATION * sqrt(log(avaliable[parentSR]) / visits[parentSR]);
 }
 
@@ -34,7 +34,6 @@ double MCTSNode::explore(GameState& gameState, bool selfRedetermed, bool parentS
 
     int currPlayerMult = gameState.currentPlayer();
     std::vector<int> actions = gameState.validActions();
-    std::shuffle(actions.begin(), actions.end(), RNG);
 
     int numActions = actions.size();
     std::vector<int> actionCodes(numActions);
