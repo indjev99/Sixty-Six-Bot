@@ -10,6 +10,10 @@ struct PlayerGameState
 {
     PlayerGameState(int mult = 0, Player* player = nullptr);
 
+    void setHand(const std::vector<Card>& hand);
+    void addCard(Card card);
+    void removeCard(int idx);
+
     int mult;
     Player* player;
 
@@ -18,6 +22,9 @@ struct PlayerGameState
     bool hasClosed;
 
     std::vector<Card> hand;
+
+    std::vector<bool> isMarriageSuit;
+    std::vector<int> marriageCardCounts;
 };
 
 struct GameState
@@ -37,9 +44,9 @@ struct GameState
     void applyPlayerAction(int attempts = 1);
     int actionCode(int idx) const;
 
-private:
+    void reserveMem();
 
-    void updateMarriageSuits();
+private:
 
     int trumpSuit;
     int trickNumber;
@@ -49,5 +56,8 @@ private:
     Talon talon;
     int noActionPlayer;
 
-    std::vector<bool> isMarriageSuit;
+    std::vector<int> tmpValid;
+    std::vector<int> tmpSuitedRaises;
+    std::vector<int> tmpSuited;
+    std::vector<int> tmpTrumps;
 };

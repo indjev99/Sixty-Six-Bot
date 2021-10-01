@@ -65,9 +65,12 @@ void PlayerUI::giveHand(const std::vector<Card>& hand)
 
     this->hand = hand;
 
+    std::vector<Card> sortedHand = hand;
+    std::sort(sortedHand.begin(), sortedHand.end());
+
     std::cout << std::endl;
     std::cout << "Hand:";
-    for (Card card : hand)
+    for (Card card : sortedHand)
     {
         std::cout << " ";
         printCard(card);

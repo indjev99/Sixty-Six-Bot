@@ -68,19 +68,22 @@ int PlayerSimple::getMove(const std::vector<int>& valid)
 
     if (std::find(valid.begin(), valid.end(), M_CLOSE) != valid.end())
     {
+        std::vector<Card> sortedHand = hand;
+        std::sort(sortedHand.begin(), sortedHand.end());
+
         int prevSuit = NUM_SUITS;
         int closingScore = selfScore;
         bool canTake = false;
         int numTrumpsTaken = 0;
-        for (int i = hand.size(); i >= 0; --i)
+        for (int i = sortedHand.size(); i >= 0; --i)
         {
-            if (hand[i].suit != prevSuit) canTake = hand[i].rank == R_ACE;
-            else canTake = canTake && (hand[i].rank == hand[i + 1].rank - 1);
+            if (sortedHand[i].suit != prevSuit) canTake = sortedHand[i].rank == R_ACE;
+            else canTake = canTake && (sortedHand[i].rank == sortedHand[i + 1].rank - 1);
     
-            if (canTake) closingScore += CARD_VALUES[hand[i].rank] + CLOSE_TAKE_VALUE;
-            if (canTake && hand[i].suit == trumpSuit) ++numTrumpsTaken;
+            if (canTake) closingScore += CARD_VALUES[sortedHand[i].rank] + CLOSE_TAKE_VALUE;
+            if (canTake && sortedHand[i].suit == trumpSuit) ++numTrumpsTaken;
 
-            prevSuit = hand[i].suit;
+            prevSuit = sortedHand[i].suit;
         }
 
         if (numTrumpsTaken >= (NUM_RANKS - 1) / 2 && closingScore >= WIN_TRESH) return M_CLOSE;

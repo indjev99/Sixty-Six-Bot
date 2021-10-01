@@ -10,7 +10,40 @@ PlayerGameState::PlayerGameState(int mult, Player* player):
     player(player),
     score(0),
     hasTakenTricks(false),
-    hasClosed(false) {}
+    hasClosed(false),
+    isMarriageSuit(NUM_SUITS),
+    marriageCardCounts(NUM_SUITS) {}
+
+void PlayerGameState::setHand(const std::vector<Card>& hand)
+{
+    this->hand = hand;
+
+    std::fill(marriageCardCounts.begin(), marriageCardCounts.end(), 0);
+    for (int i = 0; i < (int) hand.size(); ++i)
+    {
+        if (isMarriageCard(hand[i].rank)) ++marriageCardCounts[hand[i].suit];
+    }
+
+    for (int i = 0; i < NUM_SUITS; ++i)
+    {
+        isMarriageSuit[i] = marriageCardCounts[i] == (int) MARRIAGE_RANKS.size();
+    }
+}
+
+void PlayerGameState::addCard(Card card)
+{
+    if (isMarriageCard(card.rank)) ++marriageCardCounts[card.suit];
+    isMarriageSuit[card.suit] = marriageCardCounts[card.suit] == (int) MARRIAGE_RANKS.size();
+    hand.push_back(card);
+}
+
+void PlayerGameState::removeCard(int idx)
+{
+    Card card = hand[idx];
+    if (isMarriageCard(card.rank)) --marriageCardCounts[card.suit];
+    isMarriageSuit[card.suit] = marriageCardCounts[card.suit] == (int) MARRIAGE_RANKS.size();
+    hand.erase(hand.begin() + idx);
+}
 
 namespace std
 {
@@ -22,6 +55,8 @@ namespace std
         std::swap(left.hasTakenTricks, right.hasTakenTricks);
         std::swap(left.hasClosed, right.hasClosed);
         std::swap(left.hand, right.hand);
+        std::swap(left.isMarriageSuit, right.isMarriageSuit);
+        std::swap(left.marriageCardCounts, right.marriageCardCounts);
     }
 }
 
@@ -35,16 +70,14 @@ GameState::GameState(Player* leadPlayer, Player* respPlayer):
     noActionPlayer(0)
 {
     trumpSuit = talon.lastCard().suit;
-    leadState.hand = talon.dealHand();
-    respState.hand = talon.dealHand();
+    leadState.setHand(talon.dealHand());
+    respState.setHand(talon.dealHand());
 
     if (leadState.player && respState.player)
     {
         leadState.player->startGame();
         respState.player->startGame();
     }
-
-    updateMarriageSuits();
 }
 
 GameState::GameState(int trumpSuit, int trickNumber, bool closed, Move move, const PlayerGameState& leadState,
@@ -56,9 +89,14 @@ GameState::GameState(int trumpSuit, int trickNumber, bool closed, Move move, con
     leadState(leadState),
     respState(respState),
     talon(talon),
-    noActionPlayer(0)
+    noActionPlayer(0) {}
+
+void GameState::reserveMem()
 {
-    updateMarriageSuits();
+    tmpValid.reserve(HAND_SIZE + 2);
+    tmpSuitedRaises.reserve(HAND_SIZE);
+    tmpSuited.reserve(HAND_SIZE);
+    tmpTrumps.reserve(HAND_SIZE);
 }
 
 void GameState::setPlayers(Player* leadPlayer, Player* respPlayer)
@@ -73,11 +111,6 @@ int GameState::currentPlayer()
     else return respState.mult;
 }
 
-void GameState::updateMarriageSuits()
-{
-    isMarriageSuit = findMarriageSuits(leadState.hand);
-}
-
 std::vector<int> GameState::validActions()
 {
     if (move.type == M_NONE)
@@ -88,52 +121,47 @@ std::vector<int> GameState::validActions()
             if (talon.size() > 0) lastCard = talon.lastCard();
             leadState.player->giveState(closed, talon.size(), lastCard, leadState.score, respState.score);
             respState.player->giveState(closed, talon.size(), lastCard, respState.score, leadState.score);
-
-            std::sort(leadState.hand.begin(), leadState.hand.end());
-            std::sort(respState.hand.begin(), respState.hand.end());
-
             leadState.player->giveHand(leadState.hand);
             respState.player->giveHand(respState.hand);
         }
 
-        std::vector<int> valid;
-        valid.resize(leadState.hand.size());
-        std::iota(valid.begin(), valid.end(), 0);
+        tmpValid.resize(leadState.hand.size());
+        std::iota(tmpValid.begin(), tmpValid.end(), 0);
 
         bool canDoTalonAct = !closed && trickNumber > 0 && talon.size() >= TALON_ACT_TRESH;
         if (canDoTalonAct)
         {
-            valid.push_back(M_CLOSE);
+            tmpValid.push_back(M_CLOSE);
             int exchangeIdx = findExchangeCard(trumpSuit, leadState.hand);
-            if (exchangeIdx < (int) leadState.hand.size()) valid.push_back(M_EXCHANGE);
+            if (exchangeIdx < (int) leadState.hand.size()) tmpValid.push_back(M_EXCHANGE);
         }
 
-        return valid;
+        return tmpValid;
     }
     else
     {
         if (closed || talon.size() == 0)
         {
-            std::vector<int> suitedRaises;
-            std::vector<int> suited;
-            std::vector<int> trumps;
+            tmpSuitedRaises.clear();
+            tmpSuited.clear();
+            tmpTrumps.clear();
 
             for (int i = 0; i < (int) respState.hand.size(); ++i)
             {
                 Card card = respState.hand[i];
-                if (card.suit == trumpSuit) trumps.push_back(i);
-                if (card.suit == move.card.suit) suited.push_back(i);
-                if (card.suit == move.card.suit && card.rank > move.card.rank) suitedRaises.push_back(i);
+                if (card.suit == move.card.suit && card.rank > move.card.rank) tmpSuitedRaises.push_back(i);
+                else if (card.suit == move.card.suit) tmpSuited.push_back(i);
+                else if (card.suit == trumpSuit) tmpTrumps.push_back(i);
             }
 
-            if (!suitedRaises.empty()) return suitedRaises;
-            else if (!suited.empty()) return suited;
-            else if (!trumps.empty()) return trumps;
+            if (!tmpSuitedRaises.empty()) return tmpSuitedRaises;
+            else if (!tmpSuited.empty()) return tmpSuited;
+            else if (!tmpTrumps.empty()) return tmpTrumps;
         }
 
-        std::vector<int> valid(respState.hand.size());
-        std::iota(valid.begin(), valid.end(), 0);
-        return valid;
+        tmpValid.resize(respState.hand.size());
+        std::iota(tmpValid.begin(), tmpValid.end(), 0);
+        return tmpValid;
     }
 }
 
@@ -146,7 +174,7 @@ void GameState::applyAction(int idx)
         {
             move.type = M_PLAY;
             move.card = leadState.hand[idx];
-            if (trickNumber > 0 && isMarriageSuit[move.card.suit] && isMarriageCard(move.card.rank))
+            if (trickNumber > 0 && leadState.isMarriageSuit[move.card.suit] && isMarriageCard(move.card.rank))
             {
                 move.score = move.card.suit == trumpSuit ? TRUMP_MARRIAGE_VALUE : REG_MARRIAGE_VALUE;
             }
@@ -161,7 +189,7 @@ void GameState::applyAction(int idx)
 
         if (move.type == M_PLAY)
         {
-            leadState.hand.erase(leadState.hand.begin() + idx);
+            leadState.removeCard(idx);
             leadState.score += move.score;
         }
         else if (move.type == M_CLOSE)
@@ -173,18 +201,16 @@ void GameState::applyAction(int idx)
         else if (move.type == M_EXCHANGE)
         {
             int exchangeIdx = findExchangeCard(trumpSuit, leadState.hand);
-            Card temp = leadState.hand[exchangeIdx];
-            leadState.hand[exchangeIdx] = talon.lastCard();
-            talon.setLastCard(temp);
+            leadState.removeCard(exchangeIdx);
+            leadState.addCard(talon.lastCard());
+            talon.setLastCard({EXCHANGE_RANK, trumpSuit});
             move.type = M_NONE;
-
-            updateMarriageSuits();
         }
     }
     else
     {
         Card response = respState.hand[idx];
-        respState.hand.erase(respState.hand.begin() + idx);
+        respState.removeCard(idx);
 
         if (leadState.player && respState.player)
         {
@@ -199,13 +225,11 @@ void GameState::applyAction(int idx)
 
         if (!closed && talon.size() > 0)
         {
-            leadState.hand.push_back(talon.dealCard());
-            respState.hand.push_back(talon.dealCard());
+            leadState.addCard(talon.dealCard());
+            respState.addCard(talon.dealCard());
         }
 
         if (!closed && leadState.hand.empty()) leadState.score += LAST_TRICK_VALUE;
-
-        updateMarriageSuits();
 
         move.type = M_NONE;
         ++trickNumber;
@@ -269,7 +293,7 @@ int GameState::actionCode(int idx) const
     if (move.type == M_NONE)
     {
         Card card = leadState.hand[idx];
-        if (trickNumber > 0 && isMarriageCard(card.rank) && isMarriageSuit[card.suit])
+        if (trickNumber > 0 && isMarriageCard(card.rank) && leadState.isMarriageSuit[card.suit])
             return card.code() + NUM_SUITS * NUM_RANKS;
         return card.code();
     }

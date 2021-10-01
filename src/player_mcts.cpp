@@ -178,6 +178,9 @@ void PlayerMCTS::setSelfHand(const std::vector<Card>& selfHand)
 
 GameState PlayerMCTS::makeGameState()
 {
+    selfState.setHand(selfState.hand);
+    oppState.setHand(oppState.hand);
+
     if (lastMove.type == M_NONE) return GameState(trumpSuit, trickNumber, closed, lastMove, selfState, oppState, talon);
     else return GameState(trumpSuit, trickNumber, closed, lastMove, oppState, selfState, talon);
 }
@@ -242,6 +245,7 @@ int PlayerMCTS::getAction(const std::vector<int>& valid)
         bool selfRedetermed = selfDeterm > 0;
 
         GameState gsClone = gameStates[oppDeterm][selfDeterm];
+        gsClone.reserveMem();
         node.explore(gsClone, selfRedetermed, selfRedetermed, experimental);
     }
 
