@@ -90,10 +90,13 @@ int main()
 {
     timeSeedRNG();
 
-    // PlayerMCTS playerMCTSTest(5000, 10, 10, 0.5, true);
+    // PlayerMCTS playerMCTSTest(33200, 40, 40, 0.75, false);
+
+    // PlayerUI povPlayer(&playerMCTSTest);
+    // playGame(&playerRandom, &povPlayer);
 
     // std::pair<double, double> stats;
-    // stats = benchmark(playGameHedged, &playerMCTSTest, &playerMCTSMid, true, 50000);
+    // stats = benchmark(playGameHedged, &playerMCTSTest, &playerMCTSHeavy, true, 50000);
     // std::cout << "Result: " << stats.first << " +- " << stats.second << "." << std::endl;
 
     while (true)

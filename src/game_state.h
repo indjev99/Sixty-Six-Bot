@@ -44,6 +44,8 @@ struct GameState
     int playToTerminal(int attempts = 1);
     int actionCode(int idx) const;
 
+    std::vector<int> recommendedActions();
+
     void reserveMem();
 
 private:

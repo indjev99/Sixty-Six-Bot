@@ -21,7 +21,7 @@ void PlayerGameState::setHand(const std::vector<Card>& hand)
     std::fill(marriageCardCounts.begin(), marriageCardCounts.end(), 0);
     for (int i = 0; i < (int) hand.size(); ++i)
     {
-        if (isMarriageCard(hand[i].rank)) ++marriageCardCounts[hand[i].suit];
+        if (isMarriageRank(hand[i].rank)) ++marriageCardCounts[hand[i].suit];
     }
 
     for (int i = 0; i < NUM_SUITS; ++i)
@@ -32,7 +32,7 @@ void PlayerGameState::setHand(const std::vector<Card>& hand)
 
 void PlayerGameState::addCard(Card card)
 {
-    if (isMarriageCard(card.rank)) ++marriageCardCounts[card.suit];
+    if (isMarriageRank(card.rank)) ++marriageCardCounts[card.suit];
     isMarriageSuit[card.suit] = marriageCardCounts[card.suit] == (int) MARRIAGE_RANKS.size();
     hand.push_back(card);
 }
@@ -40,7 +40,7 @@ void PlayerGameState::addCard(Card card)
 void PlayerGameState::removeCard(int idx)
 {
     Card card = hand[idx];
-    if (isMarriageCard(card.rank)) --marriageCardCounts[card.suit];
+    if (isMarriageRank(card.rank)) --marriageCardCounts[card.suit];
     isMarriageSuit[card.suit] = marriageCardCounts[card.suit] == (int) MARRIAGE_RANKS.size();
     hand.erase(hand.begin() + idx);
 }
@@ -180,7 +180,7 @@ void GameState::applyAction(int idx)
         {
             move.type = M_PLAY;
             move.card = leadState.hand[idx];
-            if (trickNumber > 0 && leadState.isMarriageSuit[move.card.suit] && isMarriageCard(move.card.rank))
+            if (trickNumber > 0 && leadState.isMarriageSuit[move.card.suit] && isMarriageRank(move.card.rank))
             {
                 move.score = move.card.suit == trumpSuit ? TRUMP_MARRIAGE_VALUE : REG_MARRIAGE_VALUE;
             }
@@ -312,7 +312,7 @@ int GameState::actionCode(int idx) const
     if (move.type == M_NONE)
     {
         Card card = leadState.hand[idx];
-        if (trickNumber > 0 && isMarriageCard(card.rank) && leadState.isMarriageSuit[card.suit])
+        if (trickNumber > 0 && isMarriageRank(card.rank) && leadState.isMarriageSuit[card.suit])
             return card.code() + NUM_SUITS * NUM_RANKS;
         return card.code();
     }
