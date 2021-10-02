@@ -5,10 +5,10 @@
 
 #define NUM_REDETERM_OPTIONS 2
 
-// TODO: try switching to unordered_map
-
 struct MCTSNode
 {
+    static void resetNodes(int numNodes);
+
     double explore(GameState& gameState, bool selfRedetermed, bool parentSR, bool experimental);
     std::vector<int> scoreActions(const GameState& gameState, const std::vector<int>& actions);
 
@@ -21,5 +21,5 @@ private:
     int visits[NUM_REDETERM_OPTIONS];
     int avaliable[NUM_REDETERM_OPTIONS];
     double totalReward[NUM_REDETERM_OPTIONS];
-    std::map<int, MCTSNode> children;
+    std::map<int, MCTSNode*> children;
 };

@@ -22,6 +22,12 @@ void MCTSNode::debug(GameState& gameState, bool selfRedetermed, bool parentSR)
 {
     std::cout << std::endl;
 
+    if (gameState.isTerminal())
+    {
+        std::cout << "Result: " << gameState.result() << std::endl;
+        return;
+    }
+
     if (visits[parentSR] == 0) return;
 
     std::vector<int> actions = gameState.validActions();
@@ -40,12 +46,12 @@ void MCTSNode::debug(GameState& gameState, bool selfRedetermed, bool parentSR)
     for (int i = 0; i < numActions; ++i)
     {
         int actionCode = gameState.actionCode(actions[i]);
-        int childVisits = children[actionCode].visits[nextSR];
+        int childVisits = children[actionCode]->visits[nextSR];
 
         std::cout << " ";
         printAction(actionCode);
         std::cout << ": " << childVisits;
-        if (childVisits > 0) std::cout << " " << children[actionCode].totalReward[nextSR] / childVisits;
+        if (childVisits > 0) std::cout << " " << children[actionCode]->totalReward[nextSR] / childVisits;
         std::cout << std::endl;
 
         if (i == 0 || childVisits > maxVisits)
@@ -86,5 +92,5 @@ void MCTSNode::debug(GameState& gameState, bool selfRedetermed, bool parentSR)
     std::cout << std::endl;
 
     gameState.applyAction(actions[actionIdx]);
-    children[actionCode].debug(gameState, selfRedetermed, nextSR);
+    children[actionCode]->debug(gameState, selfRedetermed, nextSR);
 }

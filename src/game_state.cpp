@@ -46,21 +46,6 @@ void PlayerGameState::removeCard(int idx)
     hand.erase(hand.begin() + idx);
 }
 
-namespace std
-{
-    void swap(PlayerGameState& left, PlayerGameState& right)
-    {
-        std::swap(left.mult, right.mult);
-        std::swap(left.player, right.player);
-        std::swap(left.score, right.score);
-        std::swap(left.hasTakenTricks, right.hasTakenTricks);
-        std::swap(left.hasClosed, right.hasClosed);
-        std::swap(left.hand, right.hand);
-        std::swap(left.isMarriageSuit, right.isMarriageSuit);
-        std::swap(left.marriageCardCounts, right.marriageCardCounts);
-    }
-}
-
 GameState::GameState(Player* leadPlayer, Player* respPlayer):
     trickNumber(0),
     closed(0),
@@ -92,11 +77,11 @@ GameState::GameState(int trumpSuit, int trickNumber, bool closed, Move move, con
 
 void GameState::reserveMem()
 {
-    tmpValid.reserve(HAND_SIZE + 2);
+    tmpValid.reserve(HAND_SIZE + NUM_SPEC_MOVES);
     tmpSuitedRaises.reserve(HAND_SIZE);
     tmpSuited.reserve(HAND_SIZE);
     tmpTrumps.reserve(HAND_SIZE);
-    tmpRecommended.reserve(HAND_SIZE + 2);
+    tmpRecommended.reserve(HAND_SIZE + NUM_SPEC_MOVES);
     tmpLowest.reserve(HAND_SIZE);
 }
 

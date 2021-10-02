@@ -7,6 +7,15 @@
 static const double INF = 1e6;
 static const double EXPLORATION = 3;
 
+static std::vector<MCTSNode> allNodes;
+
+void MCTSNode::resetNodes(int numNodes)
+{
+    allNodes.clear();
+    allNodes.reserve(numNodes);
+    allNodes.push_back(MCTSNode());
+}
+
 double MCTSNode::priority(int mult, bool parentSR)
 {
     if (visits[parentSR] == 0) return INF + randInt(0, INF);
@@ -36,27 +45,23 @@ double MCTSNode::explore(GameState& gameState, bool selfRedetermed, bool parentS
     for (int action : actions)
     {
         int actionCode = gameState.actionCode(action);
-        auto it = children.find(actionCode);
-        if (it == children.end())
-        {
-            auto res = children.insert({actionCode, MCTSNode()});
-            it = res.first;
-        }
-        ++it->second.avaliable[nextSR];
 
-        double priority = it->second.priority(currPlayerMult, nextSR);
+        auto res = children.insert({actionCode, &allNodes.back()});
+        MCTSNode* child = res.first->second;
+        if (res.second) allNodes.push_back(MCTSNode());
+
+        ++child->avaliable[nextSR];
+        double priority = child->priority(currPlayerMult, nextSR);
         if (priority > maxPriority)
         {
             maxPriority = priority;
             bestAction = action;
-            bestChild = &(it->second);
+            bestChild = child;
         }
     }
 
-    MCTSNode& child = *bestChild;
     gameState.applyAction(bestAction);
-
-    double reward = child.explore(gameState, selfRedetermed, nextSR, experimental);
+    double reward = bestChild->explore(gameState, selfRedetermed, nextSR, experimental);
     totalReward[parentSR] += reward;
     return reward;
 }
@@ -68,7 +73,7 @@ std::vector<int> MCTSNode::scoreActions(const GameState& gameState, const std::v
     for (int i = 0; i < numActions; ++i)
     {
         int actionCode = gameState.actionCode(actions[i]);
-        actionScores[i] = children[actionCode].visits[false];
+        actionScores[i] = children[actionCode]->visits[false];
     }
     return actionScores;
 }

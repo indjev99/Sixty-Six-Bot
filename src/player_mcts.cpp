@@ -138,13 +138,13 @@ void PlayerMCTS::giveSetResult(int result) {}
 
 int PlayerMCTS::getMove(const std::vector<int>& valid)
 {
-    int move = getAction(valid);
+    int move = getAction();
     return move;
 }
 
 int PlayerMCTS::getResponse(const std::vector<int>& valid)
 {
-    int response = getAction(valid);
+    int response = getAction();
     return response;
 }
 
@@ -210,11 +210,8 @@ void PlayerMCTS::redeterminizeSelf()
     selfState.hand.resize(hand.size());
 }
 
-int PlayerMCTS::getAction(const std::vector<int>& valid)
+int PlayerMCTS::getAction()
 {
-    int numActions = valid.size();
-    std::vector<int> actionScores(numActions, 0);
-
     bool noRedeterms = talonSize == 0 || numSelfRedeterms == 0;
     int currNumOppDeterms = talonSize > 0 ? numOppDeterms : 1;
 
@@ -238,6 +235,8 @@ int PlayerMCTS::getAction(const std::vector<int>& valid)
     }
 
     MCTSNode node;
+    MCTSNode::resetNodes(numPlayouts * (HAND_SIZE + NUM_SPEC_MOVES));
+
     for (int j = 0; j < numPlayouts; ++j)
     {
         int selfDeterm = (noRedeterms || randInt(0, 100) >= probRedeterm * 100) ? 0 : randInt(1, numSelfRedeterms + 1);
@@ -249,15 +248,22 @@ int PlayerMCTS::getAction(const std::vector<int>& valid)
         node.explore(gsClone, selfRedetermed, selfRedetermed, experimental);
     }
 
-    actionScores = node.scoreActions(gameStates.front().front(), valid);
+    std::vector<int> actions = gameStates[0][0].recommendedActions(experimental);
+    int numActions = actions.size();
+    std::vector<int> actionScores(numActions, 0);
 
-    // GameState gsClone = gameStates[0][0];
-    // node.debug(gsClone, false, false);
+    actionScores = node.scoreActions(gameStates[0][0], actions);
+
+    if (experimental)
+    {
+        GameState gsClone = gameStates[0][0];
+        node.debug(gsClone, false, false);
+    }
 
     int maxIdx = numActions;
     for (int i = 0; i < numActions; ++i)
     {
         if (maxIdx == numActions || actionScores[i] > actionScores[maxIdx]) maxIdx = i;
     }
-    return valid[maxIdx];
+    return actions[maxIdx];
 }

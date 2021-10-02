@@ -39,7 +39,7 @@ private:
     void determinizeOpponent();
     void redeterminizeSelf();
 
-    int getAction(const std::vector<int>& valid);
+    int getAction();
 
     int trumpSuit;
     int trickNumber;
