@@ -27,6 +27,13 @@ struct PlayerGameState
     std::vector<int> marriageCardCounts;
 };
 
+struct CardAnnotated
+{
+    Card card;
+    bool canMarry;
+    bool canExchange;
+};
+
 struct GameState
 {
     GameState(Player* leadPlayer, Player* respPlayer);
@@ -61,4 +68,6 @@ private:
     std::vector<int> tmpSuitedRaises;
     std::vector<int> tmpSuited;
     std::vector<int> tmpTrumps;
+    std::vector<int> tmpRecommended;
+    std::vector<CardAnnotated> tmpLowest;
 };

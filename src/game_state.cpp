@@ -95,6 +95,8 @@ void GameState::reserveMem()
     tmpSuitedRaises.reserve(HAND_SIZE);
     tmpSuited.reserve(HAND_SIZE);
     tmpTrumps.reserve(HAND_SIZE);
+    tmpRecommended.reserve(HAND_SIZE + 2);
+    tmpLowest.reserve(HAND_SIZE);
 }
 
 void GameState::setPlayers(Player* leadPlayer, Player* respPlayer)
@@ -160,9 +162,14 @@ std::vector<int> GameState::validActions()
                 else if (card.suit == trumpSuit) tmpTrumps.push_back(i);
             }
 
-            if (!tmpSuitedRaises.empty()) return tmpSuitedRaises;
-            else if (!tmpSuited.empty()) return tmpSuited;
-            else if (!tmpTrumps.empty()) return tmpTrumps;
+            bool anyCard = false;
+
+            if (!tmpSuitedRaises.empty()) std::swap(tmpSuitedRaises, tmpValid);
+            else if (!tmpSuited.empty()) std::swap(tmpSuited, tmpValid);
+            else if (!tmpTrumps.empty()) std::swap(tmpTrumps, tmpValid);
+            else anyCard = true;
+
+            if (!anyCard) return tmpValid;
         }
 
         tmpValid.resize(respState.hand.size());
