@@ -53,7 +53,7 @@ struct GameState
     int playToTerminal(int attempts = 1);
     int actionCode(int idx) const;
 
-    std::vector<int> recommendedActions();
+    std::vector<int> recommendedActions(bool experimental);
 
 private:
 

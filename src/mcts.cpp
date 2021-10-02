@@ -25,7 +25,7 @@ double MCTSNode::explore(GameState& gameState, bool selfRedetermed, bool parentS
     }
 
     int currPlayerMult = gameState.currentPlayer();
-    std::vector<int> actions = gameState.recommendedActions();
+    std::vector<int> actions = gameState.recommendedActions(experimental);
 
     double maxPriority = -INF;
     int bestAction = M_NONE;

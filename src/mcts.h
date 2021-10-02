@@ -5,6 +5,8 @@
 
 #define NUM_REDETERM_OPTIONS 2
 
+// TODO: try switching to unordered_map
+
 struct MCTSNode
 {
     double explore(GameState& gameState, bool selfRedetermed, bool parentSR, bool experimental);

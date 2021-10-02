@@ -14,7 +14,11 @@ static bool operator<=(const CardAnnotated& left, const CardAnnotated& right)
     return left.card.suit == right.card.suit && left.card.rank <= right.card.rank && left.canMarry <= right.canMarry && left.canExchange <= right.canExchange;
 }
 
-std::vector<int> GameState::recommendedActions()
+// TODO: try canMarry only if have marriage
+// TODO: prune taking responses
+// TODO: keep track of played cards (and give them on construction) -- important for taking responses but also for canMarry
+
+std::vector<int> GameState::recommendedActions(bool experimental)
 {
     validActions();
 
