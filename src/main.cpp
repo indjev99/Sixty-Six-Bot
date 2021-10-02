@@ -93,10 +93,10 @@ int main()
     // PlayerMCTS playerMCTSTest(5000, 10, 10, 0.5, true);
 
     // PlayerUI povPlayer(&playerMCTSTest);
-    // playGame(&playerRandom, &povPlayer);
+    // playGame(&povPlayer, &playerRandom);
 
     // std::pair<double, double> stats;
-    // stats = benchmark(playGame, &playerMCTSTest, &playerMCTSTest2, true, 50000);
+    // stats = benchmark(playGame, &playerMCTSMid, &playerMCTSMidClone, true, 50000);
     // std::cout << "Result: " << stats.first << " +- " << stats.second << "." << std::endl;
 
     while (true)

@@ -40,6 +40,7 @@ struct GameState
     GameState(int trumpSuit, int trickNumber, bool closed, Move move, const PlayerGameState& leadState,
               const PlayerGameState& respState, const std::vector<Card>& talon);
 
+    void reserveMem();
     void setPlayers(Player* leadPlayer, Player* respPlayer);
 
     int currentPlayer();
@@ -48,12 +49,11 @@ struct GameState
     bool isTerminal();
     int result();
 
+    int randPlayToTerminal();
     int playToTerminal(int attempts = 1);
     int actionCode(int idx) const;
 
     std::vector<int> recommendedActions();
-
-    void reserveMem();
 
 private:
 

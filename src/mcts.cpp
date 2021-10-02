@@ -1,5 +1,4 @@
 #include "mcts.h"
-#include "player_random.h"
 #include "config.h"
 #include "rng.h"
 #include <algorithm>
@@ -20,9 +19,7 @@ double MCTSNode::explore(GameState& gameState, bool selfRedetermed, bool parentS
 
     if (gameState.isTerminal() || visits[parentSR] == 1)
     {
-        PlayerRandom playerRandom;
-        gameState.setPlayers(&playerRandom, &playerRandom);
-        int result = gameState.playToTerminal();;
+        int result = gameState.randPlayToTerminal();
         totalReward[parentSR] += result;
         return result;
     }

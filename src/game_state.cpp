@@ -2,6 +2,7 @@
 #include "game_state.h"
 #include "config.h"
 #include "util.h"
+#include "rng.h"
 #include <algorithm>
 #include <numeric>
 
@@ -141,7 +142,7 @@ std::vector<int> GameState::validActions()
         {
             tmpValid.push_back(M_CLOSE);
             int exchangeIdx = findExchangeCard(trumpSuit, leadState.hand);
-            if (exchangeIdx < (int) leadState.hand.size()) tmpValid.push_back(M_EXCHANGE);
+            if (exchangeIdx < (int) leadState.hand.size() && talon.lastCard().rank > EXCHANGE_RANK) tmpValid.push_back(M_EXCHANGE);
         }
 
         return tmpValid;
@@ -286,6 +287,16 @@ int GameState::result()
     return points * leadState.mult;
 }
 
+int GameState::randPlayToTerminal()
+{
+    while (!isTerminal())
+    {
+        validActions();
+        applyAction(tmpValid[randInt(0, tmpValid.size())]);
+    }
+    return result();
+}
+
 int GameState::playToTerminal(int attempts)
 {
     while (!isTerminal())
@@ -293,13 +304,13 @@ int GameState::playToTerminal(int attempts)
         int currAttempts = attempts;
 
         int idx;
-        std::vector<int> valid = validActions();
+        validActions();
         do
         {
-            if (move.type == M_NONE) idx = leadState.player->getMove(valid);
-            else idx = respState.player->getResponse(valid);
+            if (move.type == M_NONE) idx = leadState.player->getMove(tmpValid);
+            else idx = respState.player->getResponse(tmpValid);
         }
-        while (currAttempts-- && std::find(valid.begin(), valid.end(), idx) == valid.end());
+        while (currAttempts-- && std::find(tmpValid.begin(), tmpValid.end(), idx) == tmpValid.end());
 
         if (currAttempts < 0)
         { 
