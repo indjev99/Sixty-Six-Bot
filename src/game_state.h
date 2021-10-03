@@ -59,6 +59,7 @@ struct GameState
     static Card acodeCard(int code);
 
     std::vector<int> recommendedActions(bool experimental);
+    double actionHeuristic(int idx);
 
 private:
 
@@ -75,4 +76,5 @@ private:
     std::vector<int> tmpTrumps;
     std::vector<int> tmpRecommended;
     std::vector<CardAnnotated> tmpLowest;
+    std::vector<int> tmpPriorities;
 };

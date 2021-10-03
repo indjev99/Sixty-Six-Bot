@@ -17,7 +17,7 @@ struct MCTSNode
 
 private:
 
-    double priority(int mult, bool parentSR);
+    double priority(int mult, bool parentSR, double heuristic);
 
     int visits[NUM_REDETERM_OPTIONS];
     int avaliable[NUM_REDETERM_OPTIONS];

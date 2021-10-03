@@ -6,6 +6,7 @@
 
 static const double INF = 1e6;
 static const double EXPLORATION = 3;
+static const double HEUR_WEIGHT = 20;
 
 static std::vector<MCTSNode> allNodes;
 
@@ -23,10 +24,10 @@ MCTSNode::MCTSNode()
     std::fill(children, children + NUM_ACODES, nullptr);
 }
 
-double MCTSNode::priority(int mult, bool parentSR)
+double MCTSNode::priority(int mult, bool parentSR, double heuristic)
 {
-    if (visits[parentSR] == 0) return INF + randInt(0, INF);
-    return mult * totalReward[parentSR] / visits[parentSR] + EXPLORATION * sqrt(log(avaliable[parentSR]) / visits[parentSR]);
+    if (visits[parentSR] == 0) return INF + heuristic + randInt(0, INF) * 1.0 / INF / INF;
+    return (mult * totalReward[parentSR] + HEUR_WEIGHT * heuristic) / visits[parentSR] + EXPLORATION * sqrt(log(avaliable[parentSR]) / visits[parentSR]);
 }
 
 double MCTSNode::explore(GameState& gameState, bool selfRedetermed, bool parentSR, bool experimental)
@@ -61,7 +62,7 @@ double MCTSNode::explore(GameState& gameState, bool selfRedetermed, bool parentS
         MCTSNode* child = children[actionCode];
 
         ++child->avaliable[nextSR];
-        double priority = child->priority(currPlayerMult, nextSR);
+        double priority = child->priority(currPlayerMult, nextSR, gameState.actionHeuristic(action));
         if (priority > maxPriority)
         {
             maxPriority = priority;

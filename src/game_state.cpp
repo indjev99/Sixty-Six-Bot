@@ -83,6 +83,7 @@ void GameState::reserveMem()
     tmpTrumps.reserve(HAND_SIZE);
     tmpRecommended.reserve(HAND_SIZE + NUM_SPEC_MOVES);
     tmpLowest.reserve(HAND_SIZE);
+    tmpPriorities.reserve(HAND_SIZE);
 }
 
 void GameState::setPlayers(Player* leadPlayer, Player* respPlayer)

@@ -254,11 +254,11 @@ int PlayerMCTS::getAction()
 
     actionScores = node.scoreActions(gameStates[0][0], actions);
 
-    if (experimental)
-    {
-        GameState gsClone = gameStates[0][0];
-        node.debug(gsClone, false);
-    }
+    // if (experimental)
+    // {
+    //     GameState gsClone = gameStates[0][0];
+    //     node.debug(gsClone, false);
+    // }
 
     int maxIdx = numActions;
     for (int i = 0; i < numActions; ++i)
