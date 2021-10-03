@@ -8,6 +8,8 @@ static const double INF = 1e6;
 static const double EXPLORATION = 3;
 static const double HEUR_WEIGHT = 20;
 
+// TODO: Play around with EXPLORATION
+
 static std::vector<MCTSNode> allNodes;
 
 void MCTSNode::resetNodes(int numPlayouts)
