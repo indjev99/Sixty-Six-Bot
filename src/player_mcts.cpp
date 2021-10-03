@@ -185,6 +185,8 @@ GameState PlayerMCTS::makeGameState()
     else return GameState(trumpSuit, trickNumber, closed, lastMove, oppState, selfState, talon);
 }
 
+// TODO: Update probabilities of cards based on previous oponent actions
+
 void PlayerMCTS::determinizeOpponent()
 {
     int oppHandSize = hand.size() - (lastMove.type != M_NONE);
@@ -194,10 +196,10 @@ void PlayerMCTS::determinizeOpponent()
     oppState.hand.insert(oppState.hand.end(), knownOppCards.begin(), knownOppCards.end());
 }
 
+// TODO: Improve by keeping track of opponent knowledge about self cards
+
 void PlayerMCTS::redeterminizeSelf()
 {
-    // TODO: Improve by keeping track of opponent knowledge about self cards
-
     selfState.hand = unseenCards;
     selfState.hand.insert(selfState.hand.end(), hand.begin(), hand.end());
 

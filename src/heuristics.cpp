@@ -4,6 +4,8 @@
 #include "util.h"
 #include <algorithm>
 
+static const int KEEP_TRUMP_VALUE = CARD_VALUES[NUM_RANKS - 1];
+
 static bool operator==(const CardAnnotated& left, const CardAnnotated& right)
 {
     return left.card.suit == right.card.suit && left.card.rank == right.card.rank && left.canMarry == right.canMarry && left.canExchange == right.canExchange;
@@ -13,11 +15,6 @@ static bool operator<=(const CardAnnotated& left, const CardAnnotated& right)
 {
     return left.card.suit == right.card.suit && left.card.rank <= right.card.rank && left.canMarry <= right.canMarry && left.canExchange <= right.canExchange;
 }
-
-// TODO: try canMarry only if have marriage
-// TODO: try keeping track of played cards (and give them on construction) -- important for taking responses but also for canMarry
-
-static const int KEEP_TRUMP_VALUE = CARD_VALUES[NUM_RANKS - 1];
 
 std::vector<int> GameState::recommendedActions(bool experimental)
 {
