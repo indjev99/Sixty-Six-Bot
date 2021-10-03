@@ -1,5 +1,5 @@
 # Sixty-Six-Bot
-A Bot for the Bulgarian vartiation of Sixty Six.
+A Bot for the Bulgarian variation of Sixty Six.
 
 Rules specific to the Bulgarian version:
 
