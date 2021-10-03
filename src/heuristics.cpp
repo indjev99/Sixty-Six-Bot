@@ -94,13 +94,7 @@ std::vector<int> GameState::recommendedActions(bool experimental)
 
 double GameState::actionHeuristic(int idx)
 {
-    if (tmpRecommended.size() == 1) return 0;
-
-    if (move.type == M_NONE)
-    {
-        // TODO: add heurisitcs about 20, 40, closing
-        return 0;
-    }
+    if (tmpRecommended.size() == 1 || move.type == M_NONE) return 0;
 
     int pos = std::find(tmpRecommended.begin(), tmpRecommended.end(), idx) - tmpRecommended.begin();
     return  -0.5 * pos / (tmpRecommended.size() - 1);
