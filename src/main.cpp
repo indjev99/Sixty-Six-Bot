@@ -89,12 +89,11 @@ double playGameHedged(Player* leadPlayer, Player* respPlayer)
 int main()
 {
     timeSeedRNG();
-    seedRNG(0);
 
-    PlayerMCTS playerMCTSTest(300000, 40, 40, 0.85, true);
+    // PlayerMCTS playerMCTSTest(300000, 40, 40, 0.85, true);
 
-    PlayerUI povPlayer(&playerMCTSTest);
-    playGame(&povPlayer, &playerMCTSUltra);
+    // PlayerUI povPlayer(&playerMCTSTest);
+    // playGame(&povPlayer, &playerMCTSUltra);
 
     // std::pair<double, double> stats;
     // stats = benchmark(playGame, &playerMCTSMid, &playerSimple, true, 50000);
