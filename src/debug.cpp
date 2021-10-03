@@ -6,29 +6,28 @@
 
 void printAction(int code)
 {
-    if (code == M_CLOSE) std::cout << "Close";
-    else if (code == M_EXCHANGE) std::cout << "Exchange";
-    else printCard(Card(code % (NUM_SUITS * NUM_RANKS)));
+    if (code == NUM_ACODES + M_CLOSE) std::cout << "Close";
+    else if (code == NUM_ACODES + M_EXCHANGE) std::cout << "Exchange";
+    else printCard(GameState::acodeCard(code));
 }
 
 std::string actionString(int code)
 {
-    if (code == M_CLOSE) return "Close";
-    else if (code == M_EXCHANGE) return "Exchange";
-    else return Card(code % (NUM_SUITS * NUM_RANKS)).toString();
+    if (code == NUM_ACODES + M_CLOSE) return "Close";
+    else if (code == NUM_ACODES + M_EXCHANGE) return "Exchange";
+    else return GameState::acodeCard(code).toString();
 }
 
-void MCTSNode::debug(GameState& gameState, bool selfRedetermed, bool parentSR)
+void MCTSNode::debug(GameState& gameState, bool selfRedetermed)
 {
     std::cout << std::endl;
 
     if (gameState.isTerminal())
     {
         std::cout << "Result: " << gameState.result() << std::endl;
+        std::cout << std::endl;
         return;
     }
-
-    if (visits[parentSR] == 0) return;
 
     std::vector<int> actions = gameState.validActions();
 
@@ -46,7 +45,7 @@ void MCTSNode::debug(GameState& gameState, bool selfRedetermed, bool parentSR)
     for (int i = 0; i < numActions; ++i)
     {
         int actionCode = gameState.actionCode(actions[i]);
-        int childVisits = children[actionCode]->visits[nextSR];
+        int childVisits = children[actionCode] ? children[actionCode]->visits[nextSR] : 0;
 
         std::cout << " ";
         printAction(actionCode);
@@ -54,7 +53,7 @@ void MCTSNode::debug(GameState& gameState, bool selfRedetermed, bool parentSR)
         if (childVisits > 0) std::cout << " " << children[actionCode]->totalReward[nextSR] / childVisits;
         std::cout << std::endl;
 
-        if (i == 0 || childVisits > maxVisits)
+        if (childVisits > maxVisits)
         {
             actionIdx = i;
             maxVisits = childVisits;
@@ -67,13 +66,9 @@ void MCTSNode::debug(GameState& gameState, bool selfRedetermed, bool parentSR)
     std::cout << "Choosing: ";
     std::cin >> actionStr;
 
-    if (stringMatch(actionStr, "Stop"))
-    {
-        std::cout << std::endl;
-        return;
-    }
-
     moveUpOneLine();
+
+    if (stringMatch(actionStr, "Stop")) return;
 
     for (int i = 0; i < numActions; ++i)
     {
@@ -87,10 +82,12 @@ void MCTSNode::debug(GameState& gameState, bool selfRedetermed, bool parentSR)
 
     int actionCode = gameState.actionCode(actions[actionIdx]);
 
+    if (children[actionCode] == nullptr || children[actionCode]->visits[nextSR] == 0) return;
+
     std::cout << "Choosing: ";
     printAction(actionCode);
     std::cout << std::endl;
 
     gameState.applyAction(actions[actionIdx]);
-    children[actionCode]->debug(gameState, selfRedetermed, nextSR);
+    children[actionCode]->debug(gameState, selfRedetermed);
 }

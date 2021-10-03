@@ -27,14 +27,14 @@ void PlayerGameState::setHand(const std::vector<Card>& hand)
 
     for (int i = 0; i < NUM_SUITS; ++i)
     {
-        isMarriageSuit[i] = marriageCardCounts[i] == (int) MARRIAGE_RANKS.size();
+        isMarriageSuit[i] = marriageCardCounts[i] == NUM_MARRIAGE_RANKS;
     }
 }
 
 void PlayerGameState::addCard(Card card)
 {
     if (isMarriageRank(card.rank)) ++marriageCardCounts[card.suit];
-    isMarriageSuit[card.suit] = marriageCardCounts[card.suit] == (int) MARRIAGE_RANKS.size();
+    isMarriageSuit[card.suit] = marriageCardCounts[card.suit] == NUM_MARRIAGE_RANKS;
     hand.push_back(card);
 }
 
@@ -42,7 +42,7 @@ void PlayerGameState::removeCard(int idx)
 {
     Card card = hand[idx];
     if (isMarriageRank(card.rank)) --marriageCardCounts[card.suit];
-    isMarriageSuit[card.suit] = marriageCardCounts[card.suit] == (int) MARRIAGE_RANKS.size();
+    isMarriageSuit[card.suit] = marriageCardCounts[card.suit] == NUM_MARRIAGE_RANKS;
     hand.erase(hand.begin() + idx);
 }
 
@@ -311,13 +311,23 @@ int GameState::playToTerminal(int attempts)
 
 int GameState::actionCode(int idx) const
 {
-    if (idx < 0) return idx;
+    if (idx < 0) return  NUM_ACODES + idx;
     if (move.type == M_NONE)
     {
         Card card = leadState.hand[idx];
         if (trickNumber > 0 && isMarriageRank(card.rank) && leadState.isMarriageSuit[card.suit])
-            return card.code() + NUM_SUITS * NUM_RANKS;
+        {
+            int mRank = std::find(MARRIAGE_RANKS, MARRIAGE_RANKS + NUM_MARRIAGE_RANKS, card.rank) - MARRIAGE_RANKS;
+            return NUM_SUITS * NUM_RANKS + card.suit * NUM_MARRIAGE_RANKS + mRank;
+        }
         return card.code();
     }
     else return respState.hand[idx].code();
+}
+
+Card GameState::acodeCard(int code)
+{
+    if (code < NUM_SUITS * NUM_RANKS) return Card(code);
+    code -= NUM_SUITS * NUM_RANKS;
+    return Card(MARRIAGE_RANKS[code % NUM_MARRIAGE_RANKS], code / NUM_MARRIAGE_RANKS);
 }

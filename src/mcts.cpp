@@ -9,11 +9,18 @@ static const double EXPLORATION = 3;
 
 static std::vector<MCTSNode> allNodes;
 
-void MCTSNode::resetNodes(int numNodes)
+void MCTSNode::resetNodes(int numPlayouts)
 {
     allNodes.clear();
-    allNodes.reserve(numNodes);
-    allNodes.push_back(MCTSNode());
+    allNodes.reserve(numPlayouts * (HAND_SIZE + NUM_SPEC_MOVES));
+}
+
+MCTSNode::MCTSNode()
+{
+    std::fill(visits, visits + NUM_REDETERM_OPTIONS, 0);
+    std::fill(avaliable, avaliable + NUM_REDETERM_OPTIONS, 0);
+    std::fill(totalReward, totalReward + NUM_REDETERM_OPTIONS, 0);
+    std::fill(children, children + NUM_ACODES, nullptr);
 }
 
 double MCTSNode::priority(int mult, bool parentSR)
@@ -46,9 +53,12 @@ double MCTSNode::explore(GameState& gameState, bool selfRedetermed, bool parentS
     {
         int actionCode = gameState.actionCode(action);
 
-        auto res = children.insert({actionCode, &allNodes.back()});
-        MCTSNode* child = res.first->second;
-        if (res.second) allNodes.push_back(MCTSNode());
+        if (children[actionCode] == nullptr)
+        {
+            allNodes.push_back(MCTSNode());
+            children[actionCode] = &allNodes.back();
+        }
+        MCTSNode* child = children[actionCode];
 
         ++child->avaliable[nextSR];
         double priority = child->priority(currPlayerMult, nextSR);

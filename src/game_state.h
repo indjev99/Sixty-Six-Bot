@@ -4,7 +4,10 @@
 #include "card.h"
 #include "talon.h"
 #include "player.h"
+#include "config.h"
 #include <vector>
+
+const int NUM_ACODES = NUM_SUITS * NUM_RANKS + NUM_SUITS * NUM_MARRIAGE_RANKS + NUM_SPEC_MOVES;
 
 struct PlayerGameState
 {
@@ -52,6 +55,8 @@ struct GameState
     int randPlayToTerminal();
     int playToTerminal(int attempts = 1);
     int actionCode(int idx) const;
+
+    static Card acodeCard(int code);
 
     std::vector<int> recommendedActions(bool experimental);
 

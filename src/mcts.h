@@ -1,18 +1,19 @@
 #pragma once
 
 #include "game_state.h"
-#include <map>
 
 #define NUM_REDETERM_OPTIONS 2
 
 struct MCTSNode
 {
-    static void resetNodes(int numNodes);
+    static void resetNodes(int numPlayouts);
+
+    MCTSNode();
 
     double explore(GameState& gameState, bool selfRedetermed, bool parentSR, bool experimental);
     std::vector<int> scoreActions(const GameState& gameState, const std::vector<int>& actions);
 
-    void debug(GameState& gameState, bool selfRedetermed, bool parentSR);
+    void debug(GameState& gameState, bool selfRedetermed);
 
 private:
 
@@ -21,5 +22,5 @@ private:
     int visits[NUM_REDETERM_OPTIONS];
     int avaliable[NUM_REDETERM_OPTIONS];
     double totalReward[NUM_REDETERM_OPTIONS];
-    std::map<int, MCTSNode*> children;
+    MCTSNode* children[NUM_ACODES];
 };

@@ -6,7 +6,8 @@
 const int HAND_SIZE = 6;
 const int TALON_ACT_TRESH = 4;
 const int EXCHANGE_RANK = R_NINE;
-const std::vector<int> MARRIAGE_RANKS = {R_QUEEN, R_KING};
+const int NUM_MARRIAGE_RANKS = 2;
+const int MARRIAGE_RANKS[NUM_MARRIAGE_RANKS] = {R_QUEEN, R_KING};
 
 const int CARD_VALUES[NUM_RANKS] = {0, 2, 3, 4, 10, 11};
 const int REG_MARRIAGE_VALUE = 20;

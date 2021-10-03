@@ -235,7 +235,7 @@ int PlayerMCTS::getAction()
     }
 
     MCTSNode node;
-    MCTSNode::resetNodes(numPlayouts * (HAND_SIZE + NUM_SPEC_MOVES));
+    MCTSNode::resetNodes(numPlayouts);
 
     for (int j = 0; j < numPlayouts; ++j)
     {
@@ -257,7 +257,7 @@ int PlayerMCTS::getAction()
     if (experimental)
     {
         GameState gsClone = gameStates[0][0];
-        node.debug(gsClone, false, false);
+        node.debug(gsClone, false);
     }
 
     int maxIdx = numActions;

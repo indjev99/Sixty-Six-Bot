@@ -62,7 +62,7 @@ int PlayerSimple::getMove(const std::vector<int>& valid)
     {
         for (int i = 0; i < (int) hand.size(); ++i)
         {
-            if (hand[i].suit == targetMarriageSuit && hand[i].rank == MARRIAGE_RANKS.front()) return i;
+            if (hand[i].suit == targetMarriageSuit && hand[i].rank == MARRIAGE_RANKS[0]) return i;
         }
     }
 
