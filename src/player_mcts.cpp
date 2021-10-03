@@ -234,6 +234,10 @@ int PlayerMCTS::getAction()
         }
     }
 
+    std::vector<int> actions = gameStates[0][0].recommendedActions(experimental);
+
+    if (actions.size() == 1) return actions[0];
+
     MCTSNode node;
     MCTSNode::resetNodes(numPlayouts);
 
@@ -248,22 +252,17 @@ int PlayerMCTS::getAction()
         node.explore(gsClone, selfRedetermed, selfRedetermed, experimental);
     }
 
-    std::vector<int> actions = gameStates[0][0].recommendedActions(experimental);
-    int numActions = actions.size();
-    std::vector<int> actionScores(numActions, 0);
-
-    actionScores = node.scoreActions(gameStates[0][0], actions);
-
     // if (experimental)
     // {
     //     GameState gsClone = gameStates[0][0];
     //     node.debug(gsClone, false);
     // }
 
-    int maxIdx = numActions;
-    for (int i = 0; i < numActions; ++i)
+    int maxIdx = actions.size();
+    std::vector<int> actionScores = node.scoreActions(gameStates[0][0], actions);
+    for (int i = 0; i < (int) actions.size(); ++i)
     {
-        if (maxIdx == numActions || actionScores[i] > actionScores[maxIdx]) maxIdx = i;
+        if (i == 0 || actionScores[i] > actionScores[maxIdx]) maxIdx = i;
     }
     return actions[maxIdx];
 }
