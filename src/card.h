@@ -1,5 +1,7 @@
 #pragma once
 
+#include <string>
+
 #define NUM_RANKS 6
 #define R_NINE 0
 #define R_JACK 1
@@ -9,12 +11,10 @@
 #define R_ACE 5
 
 #define NUM_SUITS 4
-#define S_SPADES 0
-#define S_HEARTS 1
-#define S_CLUBS 2
-#define S_DIAMONDS 3
-
-#include <string>
+#define S_CLUBS 0
+#define S_DIAMONDS 1
+#define S_SPADES 2
+#define S_HEARTS 3
 
 struct Card
 {
@@ -27,7 +27,6 @@ struct Card
 
     int code() const;
     std::string toString() const;
-    void fancyPrint() const;
 };
 
 bool operator==(Card left, Card right);

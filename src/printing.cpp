@@ -20,13 +20,20 @@
 
 bool FANCY_PRINTING = true;
 
-static const int SUIT_COLORS[NUM_SUITS] = {C_BLUE, C_RED, C_GREEN, C_YELLOW};
+static const int SUIT_COLORS[NUM_SUITS] = {C_GREEN, C_YELLOW, C_BLUE, C_RED};
 
 void printCard(Card card)
 {
     if (FANCY_PRINTING) setColor(SUIT_COLORS[card.suit]);
     std::cout << card.toString();
     if (FANCY_PRINTING) resetColor();
+}
+
+void printMove(Move move)
+{
+    if (move.type == M_PLAY && FANCY_PRINTING) setColor(SUIT_COLORS[move.card.suit]);
+    std::cout << move.toString();
+    if (move.type == M_PLAY && FANCY_PRINTING) resetColor();
 }
 
 static const std::string UNIX_COLOR_CODES[NUM_COLORS] = {

@@ -1,6 +1,7 @@
 #pragma once
 
 #include "card.h"
+#include "move.h"
 
 #define NUM_COLORS 8
 #define C_BLACK 0
@@ -15,6 +16,7 @@
 extern bool FANCY_PRINTING;
 
 void printCard(Card card);
+void printMove(Move move);
 void setColor(int color);
 void resetColor();
 void moveUpOneLine();

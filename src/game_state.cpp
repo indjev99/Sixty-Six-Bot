@@ -58,11 +58,8 @@ GameState::GameState(Player* leadPlayer, Player* respPlayer):
     leadState.setHand(talon.dealHand());
     respState.setHand(talon.dealHand());
 
-    if (leadState.player && respState.player)
-    {
-        leadState.player->startGame();
-        respState.player->startGame();
-    }
+    if (leadState.player) leadState.player->startGame();
+    if (respState.player) respState.player->startGame();
 }
 
 GameState::GameState(int trumpSuit, int trickNumber, bool closed, Move move, const PlayerGameState& leadState,
@@ -93,11 +90,8 @@ void GameState::setPlayers(Player* leadPlayer, Player* respPlayer)
     leadState.player = leadPlayer;
     respState.player = respPlayer;
 
-    if (leadState.player && respState.player)
-    {
-        leadState.player->startGame();
-        respState.player->startGame();
-    }
+    if (leadState.player) leadState.player->startGame();
+    if (respState.player) respState.player->startGame();
 }
 
 int GameState::currentPlayer()
@@ -110,13 +104,17 @@ std::vector<int> GameState::validActions()
 {
     if (move.type == M_NONE)
     {
-        if (leadState.player && respState.player)
+        Card lastCard;
+        if (talon.size() > 0) lastCard = talon.lastCard();
+
+        if (leadState.player)
         {
-            Card lastCard;
-            if (talon.size() > 0) lastCard = talon.lastCard();
             leadState.player->giveState(closed, talon.size(), lastCard, leadState.score, respState.score);
-            respState.player->giveState(closed, talon.size(), lastCard, respState.score, leadState.score);
             leadState.player->giveHand(leadState.hand);
+        }
+        if (respState.player)
+        {
+            respState.player->giveState(closed, talon.size(), lastCard, respState.score, leadState.score);
             respState.player->giveHand(respState.hand);
         }
 
@@ -181,11 +179,8 @@ void GameState::applyAction(int idx)
         }
         else move.type = idx;
 
-        if (leadState.player && respState.player)
-        {
-            leadState.player->giveMove(move, true);
-            respState.player->giveMove(move, false);
-        }
+        if (leadState.player) leadState.player->giveMove(move, true);
+        if (respState.player) respState.player->giveMove(move, false);
 
         if (move.type == M_PLAY)
         {
@@ -212,11 +207,8 @@ void GameState::applyAction(int idx)
         Card response = respState.hand[idx];
         respState.removeCard(idx);
 
-        if (leadState.player && respState.player)
-        {
-            leadState.player->giveResponse(response, false);
-            respState.player->giveResponse(response, true);
-        }
+        if (leadState.player) leadState.player->giveResponse(response, false);
+        if (respState.player) respState.player->giveResponse(response, true);
 
         if (!leadWinsTrick(trumpSuit, move.card, response)) std::swap(leadState, respState);
 
@@ -227,13 +219,13 @@ void GameState::applyAction(int idx)
         {
             if (talon.size() > 2 && leadState.mult == -1)
             {
-                respState.addCard(talon.dealCard());
-                leadState.addCard(talon.dealCard());
+                respState.addCard(talon.drawCard());
+                leadState.addCard(talon.drawCard());
             }
             else
             {
-                leadState.addCard(talon.dealCard());
-                respState.addCard(talon.dealCard());
+                leadState.addCard(talon.drawCard());
+                respState.addCard(talon.drawCard());
             }
         }
 
@@ -251,13 +243,11 @@ bool GameState::isTerminal()
 
 int GameState::result()
 {
-    if (leadState.player && respState.player)
-    {
-        Card lastCard;
-        if (talon.size() > 0) lastCard = talon.lastCard();
-        leadState.player->giveState(closed, talon.size(), lastCard, leadState.score, respState.score);
-        respState.player->giveState(closed, talon.size(), lastCard, respState.score, leadState.score);
-    }
+    Card lastCard;
+    if (talon.size() > 0) lastCard = talon.lastCard();
+
+    if (leadState.player) leadState.player->giveState(closed, talon.size(), lastCard, leadState.score, respState.score);
+    if (respState.player) respState.player->giveState(closed, talon.size(), lastCard, respState.score, leadState.score);
 
     if (closed && !leadState.hasClosed) std::swap(leadState, respState);
 
@@ -287,19 +277,18 @@ int GameState::playToTerminal(int attempts)
 {
     while (!isTerminal())
     {
-        int currAttempts = attempts;
-
-        int idx;
         validActions();
-        do
+
+        int idx = HAND_SIZE;
+        int currAttemps = attempts;
+        while (currAttemps-- && std::find(tmpValid.begin(), tmpValid.end(), idx) == tmpValid.end())
         {
             if (move.type == M_NONE) idx = leadState.player->getMove(tmpValid);
             else idx = respState.player->getResponse(tmpValid);
         }
-        while (currAttempts-- && std::find(tmpValid.begin(), tmpValid.end(), idx) == tmpValid.end());
 
-        if (currAttempts < 0)
-        { 
+        if (currAttemps < 0)
+        {
             int noActionPlayer = (move.type == M_NONE ? leadState : respState).mult;
             return noActionPlayer * -NOACTION_POINTS;
         }

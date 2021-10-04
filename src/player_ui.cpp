@@ -10,11 +10,9 @@ static std::string pointsWord(int points)
     return points == 1 ? "point" : "points";
 }
 
-PlayerUI::PlayerUI():
-    player(nullptr) {}
-
-PlayerUI::PlayerUI(Player* player):
-    player(player) {}
+PlayerUI::PlayerUI(Player* player, bool pause):
+    player(player),
+    pause(pause) {}
 
 void PlayerUI::startSet()
 {
@@ -93,7 +91,7 @@ void PlayerUI::giveMove(Move move, bool self)
     else if (move.type == M_CLOSE) std::cout << doer << " closed the talon." << std::endl;
     else if (move.type == M_EXCHANGE) std::cout << doer << " exchanged the face up trump card." << std::endl;
 
-    if (move.type != M_PLAY && (!self || player)) waitForKeyPress();
+    if (pause && move.type != M_PLAY) waitForKeyPress();
 }
 
 void PlayerUI::giveResponse(Card card, bool self)
@@ -105,7 +103,7 @@ void PlayerUI::giveResponse(Card card, bool self)
     printCard(card);
     std::cout << "." << std::endl;
 
-    if (player) waitForKeyPress();
+    if (pause && player) waitForKeyPress();
 
     ++trickNumber;
 }
@@ -125,7 +123,7 @@ void PlayerUI::giveGameResult(int newPoints, int selfPoints, int oppPoints)
     std::cout << " | Opponent has " << oppPoints << " " << pointsWord(oppPoints) << ".";
     std::cout << std::endl;
 
-    waitForKeyPress();
+    if (pause) waitForKeyPress();
 }
 
 void PlayerUI::giveSetResult(int result)
@@ -136,7 +134,7 @@ void PlayerUI::giveSetResult(int result)
     std::string doer = result > 0 ? "You" : "Opponent";
     std::cout << doer << " won the set." << std::endl;
 
-    waitForKeyPress();
+    if (pause) waitForKeyPress();
 }
 
 int PlayerUI::getMove(const std::vector<int>& valid)

@@ -1,7 +1,7 @@
 #include "card.h"
 
 const std::string rankNames[NUM_RANKS] = {"9", "J", "Q", "K", "10", "A"};
-const std::string suitNames[NUM_SUITS] = {"s", "h", "c", "d"};
+const std::string suitNames[NUM_SUITS] = {"c", "d", "s", "h"};
 
 Card::Card() {}
 

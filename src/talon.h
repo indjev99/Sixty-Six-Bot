@@ -10,7 +10,7 @@ struct Talon
 
     int size() const;
     std::vector<Card> dealHand();
-    Card dealCard();
+    Card drawCard();
 
     Card lastCard() const;
     void setLastCard(Card card);

@@ -4,6 +4,7 @@
 #include "player_simple.h"
 #include "player_mcts.h"
 #include "player_ui.h"
+#include "external_source_ui.h"
 #include "printing.h"
 #include "util.h"
 #include "rng.h"
@@ -83,7 +84,6 @@ double playGameHedged(Player* leadPlayer, Player* respPlayer)
     int base = gameStateBase.playToTerminal(5);
 
     return res - base * 0.5;
-    return res;
 }
 
 int main()
@@ -103,7 +103,7 @@ int main()
     {
         std::string command;
         std::cout << std::endl;
-        std::cout << "Play, obeserve, benchmark, settings or exit: ";
+        std::cout << "Play, obeserve, external, benchmark, settings or exit: ";
         std::cin >> command;
 
         if (stringMatch(command, "Play"))
@@ -120,6 +120,12 @@ int main()
             Player* respPlayer = choosePlayer(true);
             if (randInt(0, 2)) std::swap(leadPlayer, respPlayer);
             playSet(leadPlayer, respPlayer);
+        }
+        else if (stringMatch(command, "External"))
+        {
+            ExternalSourceUI extSourceUI(false);
+            PlayerUI povPlayer(choosePlayer(false), false);
+            playSetExternal(&povPlayer, &extSourceUI);
         }
         else if (stringMatch(command, "Benchmark"))
         {

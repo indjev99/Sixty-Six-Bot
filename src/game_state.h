@@ -54,12 +54,19 @@ struct GameState
 
     int randPlayToTerminal();
     int playToTerminal(int attempts = 1);
-    int actionCode(int idx) const;
 
+    int actionCode(int idx) const;
     static Card acodeCard(int code);
 
     std::vector<int> recommendedActions(bool experimental);
     double actionHeuristic(int idx);
+
+    void extSetTrumpCard(Card trumpCard);
+    void extSetHand(const std::vector<Card>& hand, int targetMult);
+    void extSetDrawnCard(Card drawnCard, int targetMult);
+    int extGetHandSize(int targetMult);
+    bool extApplyAction(int idx, int targetMult);
+    std::pair<Move, bool> extApplyPlayerAction(int targetMult);
 
 private:
 

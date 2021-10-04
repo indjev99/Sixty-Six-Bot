@@ -1,6 +1,7 @@
 #pragma once
 
 #include "card.h"
+#include <string>
 
 #define NUM_SPEC_MOVES 2
 #define M_PLAY 0
@@ -10,7 +11,10 @@
 
 struct Move
 {
-    int type = M_NONE;
+    int type;
     Card card;
-    int score = 0;
+    int score;
+
+    Move(int type = M_NONE, Card card = Card(-1, -1), int score = 0);
+    std::string toString() const;
 };

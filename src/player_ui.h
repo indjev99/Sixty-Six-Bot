@@ -4,8 +4,7 @@
 
 struct PlayerUI : Player
 {
-    PlayerUI();
-    PlayerUI(Player* player);
+    PlayerUI(Player* player = nullptr, bool pause = true);
 
     void startSet() override;
     void startGame() override;
@@ -24,6 +23,7 @@ struct PlayerUI : Player
 private:
 
     Player* player;
+    bool pause;
 
     int trumpSuit;
     bool closed;

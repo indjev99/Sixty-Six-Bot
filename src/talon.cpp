@@ -30,7 +30,7 @@ std::vector<Card> Talon::dealHand()
     return hand;
 }
 
-Card Talon::dealCard()
+Card Talon::drawCard()
 {
     assert(!cards.empty());
     Card card = cards.back();
